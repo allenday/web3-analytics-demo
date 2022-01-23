@@ -1,0 +1,13 @@
+{
+  "devDependencies": {
+    "webpack": "^5.67.0",
+    "webpack-cli": "^4.9.1",
+    "webpack-dev-server": "^4.7.3"
+  },
+  "engines": {
+    "node": "16.x.x"
+  },
+  "scripts": {
+    "start": "node src/index.js"
+  }
+}
