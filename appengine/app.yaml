@@ -1,5 +1,1 @@
 runtime: nodejs16
-entrypoint: "npx webpack-dev-server --https --mode production"
-handlers:
-- url: /
-  static_dir: public
