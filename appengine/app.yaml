@@ -1,5 +1,4 @@
 runtime: nodejs16
-port: 8080
 entrypoint: "npx webpack-dev-server --https --mode production"
 handlers:
 - url: /
