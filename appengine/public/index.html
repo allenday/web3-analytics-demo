@@ -1,0 +1,125 @@
+<html> 
+<head>
+<script src="/jquery-3.3.1.slim.min.js"></script>
+<script>
+const contract_address = "0xdb8f262b6e02d9da528f2f01507a6f012567bcaf";
+const abi = 
+[
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_maxLength",
+				"type": "uint256"
+			}
+		],
+		"name": "setMaxLength",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_notes",
+				"type": "string"
+			}
+		],
+		"name": "setNotes",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "maxLength",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "notes",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	}
+];
+let contract; 
+
+window.addEventListener("load", () => {
+  if(typeof(web3) === "undefined") {
+    return console.log("Metamask is not installed"); 
+  }
+  window.ethereum.send('eth_requestAccounts')
+  contract = web3.eth.contract(abi).at(contract_address); 
+  contract.notes.call((error, result) => {
+    if(error) { 
+      return console.log(error);
+    }
+    $("#notes").text(result);
+  });
+}); 
+
+/*
+async function isUnlocked() {
+  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  let unlocked;
+  try {
+    const accounts = await provider.listAccounts();
+    unlocked = accounts.length > 0;
+  } catch (e) {
+    unlocked = false;
+  }
+  return unlocked;
+}
+*/
+
+function setNotes() {
+  let notes = $("#new_notes").val(); 
+  contract.setNotes.sendTransaction(
+    notes, {gasPrice: web3.toWei(4.1, "Gwei")}, 
+    (error, result) => { 
+      if(error) {
+        return console.log(error);
+      } 
+      console.log("txhash: " + result); 
+    }
+  ); 
+}
+</script>
+</head> 
+<body> 
+<div id=”notes”></div>
+<br> 
+New Notes: <input type="text" id="new_notes" /> 
+<button onclick="setNotes()">Set Notes</button>
+</body>
+</html>
