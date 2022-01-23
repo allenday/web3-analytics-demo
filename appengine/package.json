@@ -4,9 +4,9 @@
   "author": "Allen Day",
   "description": "integrate on-chain transactions with Google Analytics",
   "license": "MIT",
-  "main": "index.js",
+  "main": "./src/index.js",
   "scripts": {
-    "start": "node src/index.js"
+    "start": "node ./src/index.js"
   },
   "devDependencies": {
     "webpack": "^5.67.0",
