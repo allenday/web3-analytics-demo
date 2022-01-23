@@ -1,4 +1,13 @@
 {
+  "name": "web3-analytics-demo",
+  "version": "1.0.0",
+  "author": "Allen Day",
+  "description": "integrate on-chain transactions with Google Analytics",
+  "license": "MIT",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
   "devDependencies": {
     "webpack": "^5.67.0",
     "webpack-cli": "^4.9.1",
@@ -6,8 +15,5 @@
   },
   "engines": {
     "node": "16.x.x"
-  },
-  "scripts": {
-    "start": "node src/index.js"
   }
 }
