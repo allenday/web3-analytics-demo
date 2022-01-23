@@ -90,46 +90,46 @@ const abi =
 let contract,wallets;
 
 window.addEventListener("load",async () => {
-  if(typeof(ethereum) === "undefined") {
-    return console.warn("Metamask is not installed"); 
-  }
-  wallets = await ethereum.request({ method: 'eth_requestAccounts' });
-  if (!wallets[0]) {
-    return console.warn("User shared 0 wallet addresses.");
-  }
-  ga('send','event','Wallet','connect',wallets[0]);
-  // Optional alt. approach:
-  // ga('set','userId',wallets[0]);
-  //
-  const web3 = new Web3(ethereum);
-  contract = new web3.eth.Contract(abi,contract_address); 
-  const result = await contract.methods.notes.call().call();
-  $("#notes").text(result);
+	if(typeof(ethereum) === "undefined") {
+		return console.warn("Metamask is not installed"); 
+	}
+	wallets = await ethereum.request({ method: 'eth_requestAccounts' });
+	if (!wallets[0]) {
+		return console.warn("User shared 0 wallet addresses.");
+	}
+	ga('send','event','Wallet','connect',wallets[0]);
+	// Optional alt. approach:
+	// ga('set','userId',wallets[0]);
+	//
+	const web3 = new Web3(ethereum);
+	contract = new web3.eth.Contract(abi,contract_address); 
+	const result = await contract.methods.notes.call().call();
+	$("#notes").text(result);
 }); 
 
 /*
 async function isUnlocked() {
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
-  let unlocked;
-  try {
-    const accounts = await provider.listAccounts();
-    unlocked = accounts.length > 0;
-  } catch (e) {
-    unlocked = false;
-  }
-  return unlocked;
+	const provider = new ethers.providers.Web3Provider(window.ethereum);
+	let unlocked;
+	try {
+		const accounts = await provider.listAccounts();
+		unlocked = accounts.length > 0;
+	} catch (e) {
+		unlocked = false;
+	}
+	return unlocked;
 }
 */
 
 async function setNotes() {
-  let notes = $("#new_notes").val(); 
-  let result = await contract.methods.setNotes(notes).send({
-      gasPrice: Web3.utils.toWei("4.1", "Gwei")
-     ,from: wallets[0]
-  });
-  console.log("txhash: ", result); 
-  // OPtional:
-  // ga('send','event','Wallet','transaction',result);
+	let notes = $("#new_notes").val(); 
+	let result = await contract.methods.setNotes(notes).send({
+			gasPrice: Web3.utils.toWei("4.1", "Gwei")
+		 ,from: wallets[0]
+	});
+	console.log("txhash: ", result); 
+	// OPtional:
+	// ga('send','event','Wallet','transaction',result);
 }
 </script>
 </head> 
