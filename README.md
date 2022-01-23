@@ -34,6 +34,6 @@ TODO
 ## merging Google Analytics data with Crypto Public Datasets
 
 TODO
-- public-data-finance:crypto_polygon
-- GA4 BQ streaming export
+- [Polygon Public Dataset in Google BigQuery](https://console.cloud.google.com/marketplace/product/public-data-finance/crypto-polygon-dataset?project=public-data-finance) *public-data-finance:crypto_polygon*
+- [GA4 BQ streaming export](https://support.google.com/analytics/answer/9823238#step3&zippy=%2Cin-this-article)
 - Google Data Studio
