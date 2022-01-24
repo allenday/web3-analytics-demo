@@ -7,6 +7,10 @@
 voting-choice {
 	display:inline-block;
 }
+a {
+	text-decoration:underline;
+	color:inherit;
+}
 </style>
 
 <!-- Google Analytics -->
@@ -124,8 +128,17 @@ customElements.define('voting-choice',class extends HTMLElement {
 						type="button"
 						value="VOTE"
 						onclick="this.closest('voting-choice').onChoose()"
-						style="min-width:5em;padding:.4em"
+						style="
+							min-width:5em;
+							padding:.4em;
+							font-size:large;
+							margin:.4em 0;
+						"
 					>
+
+					<br><br>
+
+					<a href="https://opensea.io/assets/0x13015585932752a8e6dc24be6c07c420381af53d/${ this.tokenId - 1 }">Buy on OpenSea</a>
 				`
 		}
 	}
@@ -238,7 +251,7 @@ New Notes: <input type="text" id="new_notes" />
 
 <div
 	style="
-		font:xx-large sans-serif;
+		font:medium sans-serif;
 		text-align:center;
 		background:#222;
 		color:#DDD;
