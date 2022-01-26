@@ -16,6 +16,9 @@ a {
 	text-decoration:underline;
 	color:inherit;
 }
+img[onclick]:active {
+	opacity:.8;
+}
 </style>
 
 <!-- Google Aflytics -->
@@ -175,7 +178,11 @@ customElements.define('voting-choice',class extends HTMLElement {
 						width="522"
 						height="610"
 						src="https://storage.googleapis.com/web3-demo-dev/irenedao/${ this.tokenId }.png"
-						style="outline:1px solid"
+						style="
+							outline:1px solid;
+							cursor:pointer;
+						"
+						onclick="this.closest('voting-choice').onChoose()"
 					>
 
 					<br>
@@ -189,6 +196,7 @@ customElements.define('voting-choice',class extends HTMLElement {
 							padding:.4em;
 							font-size:large;
 							margin:.4em 0;
+							cursor:pointer;
 						"
 					>
 
