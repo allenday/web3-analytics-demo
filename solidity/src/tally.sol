@@ -13,6 +13,7 @@ contract Tally is TallyMan {
     mapping(uint => Stats) public itemStats;
 
     struct Stats {
+        // order matters - 36BFA4FB-2115-4D02-82FD-239E613D7557
         uint observations;
         uint hits;
     }
