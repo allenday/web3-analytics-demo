@@ -224,6 +224,11 @@ window.addEventListener("load",async () => {
 	if(typeof(ethereum) === "undefined") {
 		return console.warn("Metamask is not installed"); 
 	}
+	if (Number(ethereum.chainId) != 137) {
+		document.getElementById('status-zone').innerHTML = `
+			Please <a href="https://docs.polygon.technology/docs/develop/metamask/config-polygon-on-metamask/" target="polygon">switch your wallet to the Polygon network</a>, then reload.
+		`
+	}
 	wallets = await ethereum.request({ method: 'eth_requestAccounts' });
 	if (!wallets[0]) {
 		return console.warn("User shared 0 wallet addresses.");
@@ -317,6 +322,14 @@ async function isUnlocked() {
 </script>
 </head> 
 <body> 
+
+<div
+	style="
+		margin-top:1em;
+		min-height:1.4em;
+		text-align:center;
+	" id="status-zone"
+></div>
 
 <div style="display:flex">
 	<div
