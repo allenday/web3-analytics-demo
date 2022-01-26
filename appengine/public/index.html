@@ -193,7 +193,7 @@ customElements.define('voting-choice',class extends HTMLElement {
 
 					<br><br>
 
-					<a target="opensea" href="${ opensea_url(this.tokenId) }">Buy on OpenSea</a>
+					<a target="opensea" onclick="ga('send','event','Conversion','opensea','${ this.tokenId }')" href="${ opensea_url(this.tokenId) }">Buy on OpenSea</a>
 				`
 		}
 	}
@@ -239,7 +239,7 @@ window.addEventListener("load",async () => {
 	});
 	result.sort((aa,bb) => measure(bb) - measure(aa)); // sort by popularity
 	document.getElementById('score-board-actual').innerHTML = result.slice(0,10).map(({tokenId},ii) => `
-		${ ii + 1 }. <a target="opensea" href="${ opensea_url(tokenId) }">#${ tokenId }</a>
+		${ ii + 1 }. <a target="opensea" onclick="ga('send','event','Conversion','opensea','${ tokenId }')" href="${ opensea_url(tokenId) }">#${ tokenId }</a>
 	`).join('<br>');
 	console.log("Top 10 Peek",result.slice(0,10));
 }); 
