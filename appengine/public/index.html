@@ -153,7 +153,7 @@ const abi = [
 // Convenience function[s]
 function opensea_url(tokenId) {
 	if (typeof tokenId != 'number') throw new TypeError;
-	return `https://opensea.io/assets/0x13015585932752a8e6dc24be6c07c420381af53d/${ tokenId }`;
+	return `https://opensea.io/assets/0x13015585932752a8e6dc24be6c07c420381af53d/${ tokenId - 1 }`;
 }
 
 // Custom HTML Elements...
@@ -173,7 +173,7 @@ customElements.define('voting-choice',class extends HTMLElement {
 					<img
 						width="522"
 						height="610"
-						src="https://storage.googleapis.com/web3-demo-dev/irenedao/${ this.tokenId + 1 }.png"
+						src="https://storage.googleapis.com/web3-demo-dev/irenedao/${ this.tokenId }.png"
 						style="outline:1px solid"
 					>
 
@@ -232,14 +232,14 @@ window.addEventListener("load",async () => {
 	let result = await contract.methods.getStats().call();
 	result = result.map(([observations,hits],ii) => {  // argument order: 36BFA4FB-2115-4D02-82FD-239E613D7557
 		return {
-			 tokenId: ii
+			 tokenId: ii + 1
 			,observations
 			,hits
 		}
 	});
 	result.sort((aa,bb) => measure(bb) - measure(aa)); // sort by popularity
 	document.getElementById('score-board-actual').innerHTML = result.slice(0,10).map(({tokenId},ii) => `
-		${ ii + 1 }. <a target="opensea" href="${ opensea_url(tokenId) }">#${ tokenId + 1 }</a>
+		${ ii + 1 }. <a target="opensea" href="${ opensea_url(tokenId) }">#${ tokenId }</a>
 	`).join('<br>');
 	console.log("Top 10 Peek",result.slice(0,10));
 }); 
@@ -253,7 +253,7 @@ async function dispatchVote(vote_for,vote_against) {
 	if (!vote_for) throw new SyntaxError;
 	if (!vote_against) throw new SyntaxError;
 	//
-	alert(`Dispatching imaginary vote for #${ vote_for } and against #${ vote_against }`);
+	//alert(`Dispatching imaginary vote for #${ vote_for } and against #${ vote_against }`);
 	//
 	console.log("Begin transaction..");
 	ga('send','event','Voting','hit',wallets[0] || "[no wallet]",vote_for);
