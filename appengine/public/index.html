@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 
 <style>
+:root {
+	font:medium sans-serif;;
+}
 voting-choice {
 	display:inline-block;
 }
@@ -29,77 +32,122 @@ ga('send', 'pageview');
 <script src="/jquery-3.3.1.slim.min.js"></script>
 <script>
 // Contract Definitions...
-const contract_address = "0xdb8f262b6e02d9da528f2f01507a6f012567bcaf";
-const abi = 
-[
+//const contract_address = "0xdb8f262b6e02d9da528f2f01507a6f012567bcaf";
+const contract_address = '0x962C03798C92a97a6E266C719feA3B275Cd7a6B0';
+const abi = [
 	{
-		"constant": false,
-		"inputs": [
+		"anonymous": false,
+		"inputs":
+		[
 			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"indexed": true,
 				"internalType": "uint256",
-				"name": "_maxLength",
+				"name": "tokenId",
 				"type": "uint256"
 			}
 		],
-		"name": "setMaxLength",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
+		"name": "observe",
+		"type": "event"
 	},
 	{
-		"constant": false,
-		"inputs": [
+		"anonymous": false,
+		"inputs":
+		[
 			{
-				"internalType": "string",
-				"name": "_notes",
-				"type": "string"
+				"indexed": true,
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
 			}
 		],
-		"name": "setNotes",
-		"outputs": [],
-		"payable": false,
+		"name": "voteFor",
+		"type": "event"
+	},
+	{
+		"inputs": [],
+		"name": "getStats",
+		"outputs":
+		[
+			{
+				"components":
+				[
+					{
+						"internalType": "uint256",
+						"name": "observations",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "hits",
+						"type": "uint256"
+					}
+				],
+				"internalType": "struct Tally.Stats[]",
+				"name": "",
+				"type": "tuple[]"
+			}
+		],
 		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
-		"inputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "constructor"
-	},
-	{
-		"constant": true,
-		"inputs": [],
-		"name": "maxLength",
-		"outputs": [
+		"inputs":
+		[
 			{
 				"internalType": "uint256",
 				"name": "",
 				"type": "uint256"
 			}
 		],
-		"payable": false,
+		"name": "itemStats",
+		"outputs":
+		[
+			{
+				"internalType": "uint256",
+				"name": "observations",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "hits",
+				"type": "uint256"
+			}
+		],
 		"stateMutability": "view",
 		"type": "function"
 	},
 	{
-		"constant": true,
-		"inputs": [],
-		"name": "notes",
-		"outputs": [
+		"inputs":
+		[
 			{
-				"internalType": "string",
-				"name": "",
-				"type": "string"
+				"internalType": "uint256",
+				"name": "tkid_for",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "tkid_against",
+				"type": "uint256"
 			}
 		],
-		"payable": false,
-		"stateMutability": "view",
+		"name": "vote",
+		"outputs": [],
+		"stateMutability": "nonpayable",
 		"type": "function"
 	}
 ];
-
 
 // Custom HTML Elements...
 customElements.define('voting-choice',class extends HTMLElement {
@@ -170,8 +218,12 @@ window.addEventListener("load",async () => {
 	//
 	const web3 = new Web3(ethereum);
 	contract = new web3.eth.Contract(abi,contract_address); 
-	const result = await contract.methods.notes.call().call();
-	$("#notes").text(result);
+	const result = await contract.methods.getStats().call();
+	with (document.querySelector('#notes')) {
+		style.whiteSpace = 'pre';
+		//textContent = JSON.stringify(result,null,'  ');
+		textContent = JSON.stringify(result);
+	}
 }); 
 
 // Voting Logic
@@ -185,7 +237,7 @@ async function dispatchVote(vote_for,vote_against) {
 	//
 	alert(`Dispatching imaginary vote for #${ vote_for } and against #${ vote_against }`);
 	//
-	let result = await contract.methods.sendVotes(vote_for,vote_against).send({
+	let result = await contract.methods.vote(vote_for,vote_against).send({
 		 gasPrice: Web3.utils.toWei("4.1", "Gwei")
 		,from: wallets[0]
 	});
@@ -230,24 +282,10 @@ async function isUnlocked() {
 	return unlocked;
 }
 */
-
-async function setNotes() {
-	let notes = $("#new_notes").val(); 
-	let result = await contract.methods.setNotes(notes).send({
-			gasPrice: Web3.utils.toWei("4.1", "Gwei")
-		 ,from: wallets[0]
-	});
-	console.log("txhash: ", result); 
-	// OPtional:
-	// ga('send','event','Wallet','transaction',result);
-}
 </script>
 </head> 
 <body> 
 <div id="notes"></div>
-<br> 
-New Notes: <input type="text" id="new_notes" /> 
-<button onclick="setNotes()">Set Notes</button>
 
 <div
 	style="
