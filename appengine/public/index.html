@@ -34,7 +34,8 @@ ga('send', 'pageview');
 <script>
 // Contract Definitions...
 //const contract_address = "0xdb8f262b6e02d9da528f2f01507a6f012567bcaf";
-const contract_address = /^localhost/.test(location.host) ? '0x962C03798C92a97a6E266C719feA3B275Cd7a6B0' : '0x2E5a6C9516a9e887390db0a94DEDbb044DF4C409';
+//const contract_address = /^localhost/.test(location.host) ? '0x962C03798C92a97a6E266C719feA3B275Cd7a6B0' : '0x2E5a6C9516a9e887390db0a94DEDbb044DF4C409';
+const contract_address = '0x2E5a6C9516a9e887390db0a94DEDbb044DF4C409';
 const abi = [
 	{
 		"anonymous": false,
@@ -255,12 +256,12 @@ async function dispatchVote(vote_for,vote_against) {
 	//
 	//alert(`Dispatching imaginary vote for #${ vote_for } and against #${ vote_against }`);
 	//
-	console.log("Begin transaction..");
+	console.log("Begin transaction from",wallets[0]);
 	ga('send','event','Voting','hit',wallets[0] || "[no wallet]",vote_for);
 	ga('send','event','Voting','observe',wallets[0] || "[no wallet]",vote_for);
 	ga('send','event','Voting','observe',wallets[0] || "[no wallet]",vote_against);
 	let result = await contract.methods.vote(vote_for,vote_against).send({
-		 gasPrice: Web3.utils.toWei("4.1", "Gwei")
+		 gasPrice: Web3.utils.toWei("100", "Gwei")
 		,from: wallets[0]
 	});
 	console.log("txhash: ", result.transactionHash);
