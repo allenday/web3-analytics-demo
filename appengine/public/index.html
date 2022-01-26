@@ -207,6 +207,11 @@ customElements.define('voting-choice',class extends HTMLElement {
 		}
 	}
 	onChoose() {
+		if (Number(ethereum.chainId) != 137) {
+			alert("Please ensure your wallet is connected to the Polygon network. (Matic Mainnet)");
+			return;
+		}
+		//
 		// Find all other voting-choise elements, excluding this one:
 		let competing_choices = Array.from(document.querySelectorAll('voting-choice')).filter(el => el != this);
 		if (competing_choices.length != 1) {
