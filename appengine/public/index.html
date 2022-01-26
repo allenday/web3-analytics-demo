@@ -261,7 +261,7 @@ async function dispatchVote(vote_for,vote_against) {
 	ga('send','event','Voting','observe',wallets[0] || "[no wallet]",vote_for);
 	ga('send','event','Voting','observe',wallets[0] || "[no wallet]",vote_against);
 	let result = await contract.methods.vote(vote_for,vote_against).send({
-		 gasPrice: Web3.utils.toWei("100", "Gwei")
+		 gasPrice: Web3.utils.toWei("200", "Gwei")
 		,from: wallets[0]
 	});
 	console.log("txhash: ", result.transactionHash);
