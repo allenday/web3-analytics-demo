@@ -34,7 +34,7 @@ ga('send', 'pageview');
 <script>
 // Contract Definitions...
 //const contract_address = "0xdb8f262b6e02d9da528f2f01507a6f012567bcaf";
-const contract_address = '0x962C03798C92a97a6E266C719feA3B275Cd7a6B0';
+const contract_address = /^localhost/.test(location.host) ? '0x962C03798C92a97a6E266C719feA3B275Cd7a6B0' : '0x2E5a6C9516a9e887390db0a94DEDbb044DF4C409';
 const abi = [
 	{
 		"anonymous": false,
