@@ -29,7 +29,6 @@ ga('send', 'pageview');
 <!-- End Google Analytics -->
 
 <script src="https://unpkg.com/web3@1.7.0/dist/web3.min.js"></script>
-<script src="/jquery-3.3.1.slim.min.js"></script>
 <script>
 // Contract Definitions...
 //const contract_address = "0xdb8f262b6e02d9da528f2f01507a6f012567bcaf";
@@ -235,7 +234,7 @@ async function dispatchVote(vote_for,vote_against) {
 	if (!vote_for) throw new SyntaxError;
 	if (!vote_against) throw new SyntaxError;
 	//
-	alert(`Dispatching imaginary vote for #${ vote_for } and against #${ vote_against }`);
+	//alert(`Dispatching imaginary vote for #${ vote_for } and against #${ vote_against }`);
 	//
 	let result = await contract.methods.vote(vote_for,vote_against).send({
 		 gasPrice: Web3.utils.toWei("4.1", "Gwei")
