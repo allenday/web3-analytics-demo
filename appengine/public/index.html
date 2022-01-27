@@ -230,8 +230,8 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 			return;
 		}
 		web3 = new Web3(ethereum); // global
-		this.web3UpdateNetwork();
 		try {
+			await this.web3UpdateNetwork();
 			let acc = await web3.eth.getAccounts(); // Fails if the user hasn't PREVIOUSLY connected. Might throw; not sure.
 			if (acc[0]) {
 				this.user_wallet = acc[0];
@@ -258,9 +258,9 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 				break;
 			default:
 				try {
-					ethereum.on('networkChanged',chainId => {
+					ethereum.on('networkChanged',async chainId => {
+						await this.web3UpdateNetwork(chainId);
 						this.repaintSoon();
-						this.web3UpdateNetwork(chainId);
 						this.freshScoreBoard();
 					})
 				}
@@ -272,21 +272,29 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 	}
 	//
 	// Util
-	web3UpdateNetwork (chainId) {
-		const chk = (Number(chainId) || Number(ethereum.chainId || undefined)) // ethereum.chainId is NULL for some versions of MetaMask
+	async web3UpdateNetwork (chainId) {
+		let chid = Number(chainId);
+		if (!chid) {
+			try {
+				chid = Number(await ethereum.request({ method:'eth_chainId' }));
+			}
+			catch (ee) {
+				chid = NaN;
+			}
+		}
 		//
 		//let nni = 0
-		//let dbf = () => this.el_debug.textContent = safehtml`${ ++nni }. ${chk} (${ typeof chk }) /  ${chainId} (${ typeof chainId }) / ${ ethereum.chainId } (${ typeof ethereum.chainId })`
+		//let dbf = () => this.el_debug.textContent = safehtml`${ ++nni }. ${chid} (${ typeof chid }) /  ${chainId} (${ typeof chainId }) / ${ ethereum.chainId } (${ typeof ethereum.chainId })`
 		//dbf()
 		//setTimeout(dbf,1000)
 		//setTimeout(dbf,5000)
 		//
 
-		if (Number.isNaN(chk)) {
+		if (Number.isNaN(chid)) {
 			this.web3_rightNetwork = undefined;
 		}
 		else {
-			this.web3_rightNetwork = chk == 137;
+			this.web3_rightNetwork = chid == 137;
 		}
 	}
 	//
@@ -347,13 +355,14 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 			console.warn("User shared 0 wallet addresses.");
 			this.user_wallet = null;
 			this.web3_state = WEB3_STANDBY;
-			this.web3UpdateNetwork();
 		}
 		else {
 			this.user_wallet = wallets[0];
 			this.web3_state = WEB3_CONNECTED;
-			this.web3UpdateNetwork();
 		}
+		//
+		await this.web3UpdateNetwork();
+		this.repaintSoon();
 		//
 		this.freshScoreBoard();
 	}
