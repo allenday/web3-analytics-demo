@@ -219,6 +219,7 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 		this.el_status = document.querySelector('#status-actual');
 		this.el_voting = document.querySelector('#choices-actual');
 		this.el_scores = document.querySelector('#score-board-actual');
+		this.el_debug = document.querySelector('#debug-actual');
 	}
 	async web3Startup () {
 		this.repaintSoon();
@@ -272,7 +273,21 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 	//
 	// Util
 	web3UpdateNetwork (chainId) {
-		this.web3_rightNetwork = (Number(chainId) || Number(ethereum.chainId)) == 137;
+		const chk = (Number(chainId) || Number(ethereum.chainId || undefined)) // ethereum.chainId is NULL for some versions of MetaMask
+		//
+		//let nni = 0
+		//let dbf = () => this.el_debug.textContent = safehtml`${ ++nni }. ${chk} (${ typeof chk }) /  ${chainId} (${ typeof chainId }) / ${ ethereum.chainId } (${ typeof ethereum.chainId })`
+		//dbf()
+		//setTimeout(dbf,1000)
+		//setTimeout(dbf,5000)
+		//
+
+		if (Number.isNaN(chk)) {
+			this.web3_rightNetwork = undefined;
+		}
+		else {
+			this.web3_rightNetwork = chk == 137;
+		}
 	}
 	//
 	// Display
@@ -296,7 +311,7 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 				break;
 			case WEB3_STANDBY:
 			case WEB3_CONNECTED:
-				if (!this.web3_rightNetwork) {
+				if (this.web3_rightNetwork === false) {
 					this.el_status.innerHTML = safehtml`
 						Please switch your wallet to the Polygon network. <a href="https://docs.polygon.technology/docs/develop/metamask/config-polygon-on-metamask/" target="polygon">Learn how</a>.
 					`;
@@ -339,6 +354,8 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 			this.web3_state = WEB3_CONNECTED;
 			this.web3UpdateNetwork();
 		}
+		//
+		this.freshScoreBoard();
 	}
 	userWalletDisconnect () {
 		this.repaintSoon()
@@ -347,8 +364,8 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 		this.user_wallet = null;
 	}
 	async userVote (vote_for,vote_against) {
-		if (this.web3_state == WEB3_CONNECTED && Number(ethereum.chainId) != 137) { // For somebody trying to vote even while it says "Switch Networks" at the top
-			alert("Please ensure your wallet is connected to the Polygon network. (Matic Mainnet)");
+		if (this.web3_state == WEB3_CONNECTED && this.web3_rightNetwork === false) { // For somebody trying to vote even while it says "Switch Networks" at the top
+			alert("Please ensure your wallet is connected to the Polygon network.");
 			return;
 		}
 		//
@@ -415,10 +432,14 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 		switch (this.web3_state) {
 			case WEB3_STANDBY:
 			case WEB3_CONNECTED:
-				if (!this.web3_rightNetwork) {
+				if (this.web3_rightNetwork === false) {
 					this.el_scores.innerHTML = safehtml`<small>Switch networks to view.</small>`;
 					break;
 				}
+				//else if (this.web3_rightNetwork === undefined) { // SOME MetaMask versions cause this state
+				//	this.el_scores.innerHTML = safehtml`<small>Connect wallet to view.</small>`;
+				//	break;
+				//}
 				let result = await this.contract.methods.getStats().call();
 				result = result.map(([observations,hits],ii) => {  // argument order: 36BFA4FB-2115-4D02-82FD-239E613D7557
 					return {
@@ -502,6 +523,14 @@ customElements.define('voting-choice',class extends HTMLElement {
 </script>
 </head> 
 <body> 
+
+<div
+	style="
+		font:monospace;
+		opacity:.5;
+		text-align:center;
+	" id="debug-actual"
+></div>
 
 <div
 	style="
