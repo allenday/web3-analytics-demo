@@ -34,6 +34,7 @@ ga('send', 'pageview');
 
 <script src="https://unpkg.com/web3@1.7.0/dist/web3.min.js"></script>
 <script>
+dbgwalk = ttl => document.title = ttl;
 // Contract Definitions...
 //const contract_address = "0xdb8f262b6e02d9da528f2f01507a6f012567bcaf";
 //const contract_address = /^localhost/.test(location.host) ? '0x962C03798C92a97a6E266C719feA3B275Cd7a6B0' : '0x2E5a6C9516a9e887390db0a94DEDbb044DF4C409';
@@ -186,6 +187,8 @@ const
 	,WEB3_NOT_INSTALLED = 2
 	,WEB3_STANDBY = 3
 	,WEB3_CONNECTED = 4
+	//
+	,STR_PREV_WALLET_CONNECTED = 'prev-wallet-C0ABD0F0'
 ;
 web3 = null;
 AppActual = new class { // Note: this is messy; would prefer custom elements, possibly with templates and slots.
@@ -222,35 +225,44 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 		this.el_debug = document.querySelector('#debug-actual');
 	}
 	async web3Startup () {
+		//dbgwalk("huh?")
 		this.repaintSoon();
 		//
+		//dbgwalk("What")
 		if(typeof(ethereum) === "undefined") {
 			this.web3_state = WEB3_NOT_INSTALLED;
 			console.warn("Metamask is not installed");
 			return;
 		}
+		//dbgwalk("90")
 		web3 = new Web3(ethereum); // global
+		this.web3_state = WEB3_STANDBY; // fallback state.
 		try {
+			//dbgwalk(1)
 			await this.web3UpdateNetwork();
-			let acc = await web3.eth.getAccounts(); // Fails if the user hasn't PREVIOUSLY connected. Might throw; not sure.
-			if (acc[0]) {
-				this.user_wallet = acc[0];
-				this.web3_state = WEB3_CONNECTED;
+			//dbgwalk(2)
+			if (localStorage[STR_PREV_WALLET_CONNECTED]) { // this can throw in some private-mode browsers
+				let acc = await web3.eth.getAccounts(); // Fails if the user hasn't PREVIOUSLY connected. Might throw; not sure.
+				if (acc[0]) {
+					this.user_wallet = acc[0];
+					this.web3_state = WEB3_CONNECTED;
+				}
 			}
-			else {
-				this.web3_state = WEB3_STANDBY;
-			}
+			//dbgwalk(3)
 		}
 		catch (ee) {
 			// Ignore
-			this.web3_state = WEB3_STANDBY;
 		}
 		//
+		//dbgwalk(4)
 		this.contract = new web3.eth.Contract(abi,contract_address); 
+		//dbgwalk(5)
 		//
 		this.repaintSoon(); // since we probably paused for async stuff
 	}
 	web3EventWatch () {
+		if (this.web3_watch_active) return;
+		//
 		switch (this.web3_state) {
 			case WEB3_UNKOWN:
 			case WEB3_BROKEN:
@@ -258,11 +270,14 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 				break;
 			default:
 				try {
+					//dbgwalk(9)
 					ethereum.on('networkChanged',async chainId => {
+						//dbgwalk(10)
 						await this.web3UpdateNetwork(chainId);
 						this.repaintSoon();
 						this.freshScoreBoard();
 					})
+					//dbgwalk(8)
 				}
 				catch (ee) {
 					// Don't know why this would throw, but until I do know, I'm being paranoid.
@@ -314,7 +329,7 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 				break;
 			case WEB3_NOT_INSTALLED:
 				this.el_status.innerHTML = safehtml`
-					Install <a target="metamask" href="https://metamask.io/download/">MetaMask</a> or any Web3 wallet to vote on-chain and view the top 10!
+					Install <a target="metamask" href="https://metamask.io/download/">MetaMask</a> or any Web3 wallet to vote on-chain!
 				`;
 				break;
 			case WEB3_STANDBY:
@@ -328,7 +343,7 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 				switch (this.web3_state) {
 					case WEB3_STANDBY:
 						this.el_status.innerHTML = safehtml`
-							<input type="button" value="Connect Your Wallet" onclick="AppActual.userWalletConnect()"> to record your vote on-chain and to view the Top 10!
+							<input type="button" value="Connect Your Wallet" onclick="AppActual.userWalletConnect()"> to record your vote on-chain!
 						`;
 						break;
 					case WEB3_CONNECTED:
@@ -359,6 +374,12 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 		else {
 			this.user_wallet = wallets[0];
 			this.web3_state = WEB3_CONNECTED;
+			try {
+				localStorage[STR_PREV_WALLET_CONNECTED] = true; // actually stores it as a string, but it's fine.
+			}
+			catch (ee) {
+				// Probably a private browsing error; Ignore 
+			}
 		}
 		//
 		await this.web3UpdateNetwork();
@@ -371,6 +392,13 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 		//
 		this.web3_state = WEB3_STANDBY;
 		this.user_wallet = null;
+		//
+		try {
+			delete localStorage[STR_PREV_WALLET_CONNECTED];
+		}
+		catch (ee) {
+			// Probably a private browsing error; Ignore 
+		}
 	}
 	async userVote (vote_for,vote_against) {
 		if (this.web3_state == WEB3_CONNECTED && this.web3_rightNetwork === false) { // For somebody trying to vote even while it says "Switch Networks" at the top
