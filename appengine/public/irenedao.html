@@ -1,0 +1,605 @@
+<!doctype html>
+<html> 
+<head>
+<meta charset="utf-8">
+<style>
+:root {
+	font:medium sans-serif;
+	background:#222;
+	color:#DDD;
+}
+voting-choice {
+	display:inline-block;
+}
+a {
+	text-decoration:underline;
+	color:inherit;
+}
+img[onclick]:active {
+	opacity:.8;
+}
+</style>
+
+<!-- Google Aflytics -->
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-15123508-26', 'auto');
+ga('send', 'pageview');
+</script>
+<!-- End Google Analytics -->
+
+<script src="https://unpkg.com/web3@1.7.0/dist/web3.min.js"></script>
+<script>
+dbgwalk = ttl => document.title = ttl;
+// Contract Definitions...
+//const contract_address = "0xdb8f262b6e02d9da528f2f01507a6f012567bcaf";
+//const contract_address = /^localhost/.test(location.host) ? '0x962C03798C92a97a6E266C719feA3B275Cd7a6B0' : '0x2E5a6C9516a9e887390db0a94DEDbb044DF4C409';
+const contract_address = '0x2E5a6C9516a9e887390db0a94DEDbb044DF4C409';
+const abi = [
+	{
+		"anonymous": false,
+		"inputs":
+		[
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "observe",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs":
+		[
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "voteFor",
+		"type": "event"
+	},
+	{
+		"inputs": [],
+		"name": "getStats",
+		"outputs":
+		[
+			{
+				"components":
+				[
+					{
+						"internalType": "uint256",
+						"name": "observations",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "hits",
+						"type": "uint256"
+					}
+				],
+				"internalType": "struct Tally.Stats[]",
+				"name": "",
+				"type": "tuple[]"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs":
+		[
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "itemStats",
+		"outputs":
+		[
+			{
+				"internalType": "uint256",
+				"name": "observations",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "hits",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs":
+		[
+			{
+				"internalType": "uint256",
+				"name": "tkid_for",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "tkid_against",
+				"type": "uint256"
+			}
+		],
+		"name": "vote",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	}
+];
+
+// Utils
+function safehtml (html,...ins) {
+	return html.map((tk,ii) => {
+		if (ii === 0) {
+			return tk;
+		}
+		return String(ins[ii - 1])
+			.replace(/&/g,'&amp;')
+			.replace(/</g,'&lt;')
+			.replace(/'/g,'&apos;')
+			.replace(/"/g,'&quot;')
+			+tk
+		;
+	}).join('');
+}
+function xssSafeguard(token) {
+	if (/['"\\]/.test(token)) {
+		throw new Error(`Guarded against string: ${ token }`)
+	}
+	return token;
+}
+function opensea_url(tokenId) {
+	if (typeof tokenId != 'number') throw new TypeError;
+	return `https://opensea.io/assets/0x13015585932752a8e6dc24be6c07c420381af53d/${ tokenId - 1 }`;
+}
+
+// State Manager
+const
+	 WEB3_UNKOWN = 0
+	,WEB3_BROKEN = 1
+	,WEB3_NOT_INSTALLED = 2
+	,WEB3_STANDBY = 3
+	,WEB3_CONNECTED = 4
+	//
+	,STR_PREV_WALLET_CONNECTED = 'prev-wallet-C0ABD0F0'
+;
+web3 = null;
+AppActual = new class { // Note: this is messy; would prefer custom elements, possibly with templates and slots.
+	constructor () {
+		//
+		// Optimisation..
+		this.repaint = this.repaint.bind(this);
+		//
+		// State and events..
+		this.web3_state = WEB3_UNKOWN;
+		this.contract = null;
+		this.user_wallet = null;
+		addEventListener('DOMContentLoaded',this.startup.bind(this));
+	}
+	//
+	// Startup
+	async startup () {
+		this.domStartup();
+		const web3completion = this.web3Startup();
+		//
+		this.freshChoices();
+		this.repaint();
+		//
+		await web3completion;
+		this.web3EventWatch();
+		this.freshScoreBoard();
+		//
+		this.repaint();
+	}
+	domStartup () {
+		this.el_status = document.querySelector('#status-actual');
+		this.el_voting = document.querySelector('#choices-actual');
+		this.el_scores = document.querySelector('#score-board-actual');
+		this.el_debug = document.querySelector('#debug-actual');
+	}
+	async web3Startup () {
+		//dbgwalk("huh?")
+		this.repaintSoon();
+		//
+		//dbgwalk("What")
+		if(typeof(ethereum) === "undefined") {
+			this.web3_state = WEB3_NOT_INSTALLED;
+			console.warn("Metamask is not installed");
+			return;
+		}
+		//dbgwalk("90")
+		web3 = new Web3(ethereum); // global
+		this.web3_state = WEB3_STANDBY; // fallback state.
+		try {
+			//dbgwalk(1)
+			await this.web3UpdateNetwork();
+			//dbgwalk(2)
+			if (localStorage[STR_PREV_WALLET_CONNECTED]) { // this can throw in some private-mode browsers
+				let acc = await web3.eth.getAccounts(); // Fails if the user hasn't PREVIOUSLY connected. Might throw; not sure.
+				if (acc[0]) {
+					this.user_wallet = acc[0];
+					this.web3_state = WEB3_CONNECTED;
+				}
+			}
+			//dbgwalk(3)
+		}
+		catch (ee) {
+			// Ignore
+		}
+		//
+		//dbgwalk(4)
+		this.contract = new web3.eth.Contract(abi,contract_address); 
+		//dbgwalk(5)
+		//
+		this.repaintSoon(); // since we probably paused for async stuff
+	}
+	web3EventWatch () {
+		if (this.web3_watch_active) return;
+		//
+		switch (this.web3_state) {
+			case WEB3_UNKOWN:
+			case WEB3_BROKEN:
+			case WEB3_NOT_INSTALLED:
+				break;
+			default:
+				try {
+					//dbgwalk(9)
+					ethereum.on('networkChanged',async chainId => {
+						//dbgwalk(10)
+						await this.web3UpdateNetwork(chainId);
+						this.repaintSoon();
+						this.freshScoreBoard();
+					})
+					//dbgwalk(8)
+				}
+				catch (ee) {
+					// Don't know why this would throw, but until I do know, I'm being paranoid.
+					console.warn("EventWatch throw:",ee);
+				}
+		}
+	}
+	//
+	// Util
+	async web3UpdateNetwork (chainId) {
+		let chid = Number(chainId);
+		if (!chid) {
+			try {
+				chid = Number(await ethereum.request({ method:'eth_chainId' }));
+			}
+			catch (ee) {
+				chid = NaN;
+			}
+		}
+		//
+		//let nni = 0
+		//let dbf = () => this.el_debug.textContent = safehtml`${ ++nni }. ${chid} (${ typeof chid }) /  ${chainId} (${ typeof chainId }) / ${ ethereum.chainId } (${ typeof ethereum.chainId })`
+		//dbf()
+		//setTimeout(dbf,1000)
+		//setTimeout(dbf,5000)
+		//
+
+		if (Number.isNaN(chid)) {
+			this.web3_rightNetwork = undefined;
+		}
+		else {
+			this.web3_rightNetwork = chid == 137;
+		}
+	}
+	//
+	// Display
+	repaintSoon () {
+		queueMicrotask(this.repaint);
+	}
+	repaint () {
+		switch (this.web3_state) {
+			case WEB3_UNKOWN:
+				this.el_status.innerHTML = safehtml``;
+				break;
+			case WEB3_BROKEN: // Not in use.
+				this.el_status.innerHTML = safehtml`
+					There was a problem with the wallet connection. Please <a href="">Reload</a> to retry.
+				`;
+				break;
+			case WEB3_NOT_INSTALLED:
+				this.el_status.innerHTML = safehtml`
+					Install <a target="metamask" href="https://metamask.io/download/">MetaMask</a> or any Web3 wallet to vote on-chain!
+				`;
+				break;
+			case WEB3_STANDBY:
+			case WEB3_CONNECTED:
+				if (this.web3_rightNetwork === false) {
+					this.el_status.innerHTML = safehtml`
+						Please switch your wallet to the Polygon network. <a href="https://docs.polygon.technology/docs/develop/metamask/config-polygon-on-metamask/" target="polygon">Learn how</a>.
+					`;
+					break;
+				}
+				switch (this.web3_state) {
+					case WEB3_STANDBY:
+						this.el_status.innerHTML = safehtml`
+							<input type="button" value="Connect Your Wallet" onclick="AppActual.userWalletConnect()"> to record your vote on-chain!
+						`;
+						break;
+					case WEB3_CONNECTED:
+						this.el_status.innerHTML = safehtml`
+							Wallet <span style="font:smaller monospace">${ this.user_wallet }</span> connected. <a style="cursor:pointer" onclick="AppActual.userWalletDisconnect()">Disconnect</a>.
+						`;
+						break;
+					default:
+						throw Unreachable1;
+				}
+				break;
+			default:
+				throw Unreachable2;
+		}
+	}
+	//
+	// Interaction
+	async userWalletConnect () {
+		const wallets = await ethereum.request({ method: 'eth_requestAccounts' });
+		//
+		this.repaintSoon();
+		//
+		if (!wallets[0]) {
+			console.warn("User shared 0 wallet addresses.");
+			this.user_wallet = null;
+			this.web3_state = WEB3_STANDBY;
+		}
+		else {
+			this.user_wallet = wallets[0];
+			this.web3_state = WEB3_CONNECTED;
+			try {
+				localStorage[STR_PREV_WALLET_CONNECTED] = true; // actually stores it as a string, but it's fine.
+			}
+			catch (ee) {
+				// Probably a private browsing error; Ignore 
+			}
+		}
+		//
+		await this.web3UpdateNetwork();
+		this.repaintSoon();
+		//
+		this.freshScoreBoard();
+	}
+	userWalletDisconnect () {
+		this.repaintSoon()
+		//
+		this.web3_state = WEB3_STANDBY;
+		this.user_wallet = null;
+		//
+		try {
+			delete localStorage[STR_PREV_WALLET_CONNECTED];
+		}
+		catch (ee) {
+			// Probably a private browsing error; Ignore 
+		}
+	}
+	async userVote (vote_for,vote_against) {
+		if (this.web3_state == WEB3_CONNECTED && this.web3_rightNetwork === false) { // For somebody trying to vote even while it says "Switch Networks" at the top
+			alert("Please ensure your wallet is connected to the Polygon network.");
+			return;
+		}
+		//
+		vote_for = Number(vote_for);
+		vote_against = Number(vote_against);
+		// Being over-cautious while debugging:
+		if (!vote_for) throw new SyntaxError;
+		if (!vote_against) throw new SyntaxError;
+		//
+		//alert(`Dispatching vote for #${ vote_for } and against #${ vote_against }`);
+		//
+		// GA Votes:
+		ga('send','event','Voting','hit',this.user_wallet || "[no wallet]",vote_for);
+		ga('send','event','Voting','observe',this.user_wallet || "[no wallet]",vote_for);
+		ga('send','event','Voting','observe',this.user_wallet || "[no wallet]",vote_against);
+		//
+		// Chain votes, if applicable:
+		switch (this.web3_state) {
+			case WEB3_CONNECTED:
+				console.log("Begin transaction from",this.user_wallet);
+				let result = await this.contract.methods.vote(vote_for,vote_against).send({
+					 gasPrice: Web3.utils.toWei("200", "Gwei")
+					,from: this.user_wallet
+				});
+				console.log("txhash: ", result.transactionHash);
+				break;
+			default:
+				console.log("No chain voting required in current config.");
+				break;
+		}
+		this.freshChoices()
+	}
+	//
+	// Non-user-initiated UI
+	freshChoices() {
+		let all_choices = [];
+		for (let ii = 0; ii != 1106; ii++) {
+			all_choices[ii] = ii + 1;
+		}
+		function selectCompetitors (how_many,full_set) { // TODO use the leaderboard dataset instead, IF it's been loaded
+			if (!(how_many > 0)) throw new Error("Check range.");
+			if (how_many > full_set.length) throw new Error("Check set.");
+			//
+			let copy = full_set.slice(0);
+			let answer = [];
+			for (let ii = 0; ii < how_many; ii++) {
+				const rnd_index = Math.random() * copy.length;
+				answer.push(copy.splice(rnd_index,1)[0]);
+			}
+			return answer;
+		}
+		const competitors = selectCompetitors(2,all_choices);
+		document.querySelector('#choices-actual').innerHTML = safehtml`
+			<voting-choice tokenId="${ competitors[0] }"></voting-choice>
+			<voting-choice tokenId="${ competitors[1] }"></voting-choice>
+		`
+	}
+	async freshScoreBoard () {
+		function measure ({observations,hits}) {
+			return (hits/observations) || 0;
+		}
+		//
+		console.log("eh?",this,this.web3_state);
+		switch (this.web3_state) {
+			case WEB3_STANDBY:
+			case WEB3_CONNECTED:
+				if (this.web3_rightNetwork === false) {
+					this.el_scores.innerHTML = safehtml`<small>Switch networks to view.</small>`;
+					break;
+				}
+				//else if (this.web3_rightNetwork === undefined) { // SOME MetaMask versions cause this state
+				//	this.el_scores.innerHTML = safehtml`<small>Connect wallet to view.</small>`;
+				//	break;
+				//}
+				let result = await this.contract.methods.getStats().call();
+				result = result.map(([observations,hits],ii) => {  // argument order: 36BFA4FB-2115-4D02-82FD-239E613D7557
+					return {
+						 tokenId: ii + 1
+						,observations
+						,hits
+					}
+				});
+				result.sort((aa,bb) => measure(bb) - measure(aa)); // sort by popularity - LATER store these for better side-by-side voting
+				this.el_scores.innerHTML = result.slice(0,10).map(({tokenId},ii) => safehtml`
+					${ ii + 1 }. <a target="opensea" onclick="ga('send','event','Conversion','opensea','${ xssSafeguard(tokenId) }')" href="${ opensea_url(tokenId) }">#${ tokenId }</a>
+				`).join('<br>');
+				console.log("Top 10 Peek",result.slice(0,10));
+				break;
+			case WEB3_NOT_INSTALLED:
+				this.el_scores.innerHTML = safehtml`<small>Install wallet to view.</small>`;
+				break;
+			default:
+				this.el_scores.innerHTML = '...';
+				break;
+		}
+	}
+}
+
+// Custom HTML Elements...
+customElements.define('voting-choice',class extends HTMLElement {
+	static get observedAttributes() {
+		return ['tokenid']
+	}
+	attributeChangedCallback(name,prev,nu) {
+		switch (name) {
+			case 'tokenid':
+				this.tokenId = Number(nu);
+				if (!this.tokenId) {
+					this.textContent = "[bad id]";
+					return;
+				}
+				this.innerHTML = safehtml`
+					<img
+						width="522"
+						height="610"
+						src="https://storage.googleapis.com/web3-demo-dev/irenedao/${ this.tokenId }.png"
+						style="
+							outline:1px solid;
+							cursor:pointer;
+						"
+						onclick="this.closest('voting-choice').onChoose()"
+					>
+
+					<br>
+
+					<input
+						type="button"
+						value="VOTE"
+						onclick="this.closest('voting-choice').onChoose()"
+						style="
+							min-width:5em;
+							padding:.4em;
+							font-size:large;
+							margin:.4em 0;
+							cursor:pointer;
+						"
+					>
+
+					<br><br>
+
+					<a target="opensea" onclick="ga('send','event','Conversion','opensea','${ this.tokenId }')" href="${ opensea_url(this.tokenId) }">Buy on OpenSea</a>
+				`
+		}
+	}
+	onChoose() {
+		//
+		// Find all other voting-choise elements, excluding this one:
+		let competing_choices = Array.from(document.querySelectorAll('voting-choice')).filter(el => el != this);
+		if (competing_choices.length != 1) {
+			throw new Error("We're expecting only one other choice to be present.");
+		}
+		AppActual.userVote(this.tokenId,competing_choices[0].tokenId);
+	}
+});
+</script>
+</head> 
+<body> 
+
+<div
+	style="
+		font:monospace;
+		opacity:.5;
+		text-align:center;
+	" id="debug-actual"
+></div>
+
+<div
+	style="
+		margin-top:1em;
+		min-height:1.4em;
+		text-align:center;
+	" id="status-actual"
+></div>
+
+<div style="display:flex">
+	<div
+		style="
+			flex:1;
+			font:medium sans-serif;
+			text-align:center;
+			padding:2em;
+		"
+		id="choices-actual"
+	>
+	</div>
+	<div
+		style="
+			flex:.1;
+			width:10em;
+		"
+		id="score-board"
+	>
+		<b>Top 10</b>
+		<br><br>
+		<div id="score-board-actual">...</div>
+	</div>
+</div>
+
+</body>
+</html>
