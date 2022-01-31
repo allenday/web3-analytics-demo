@@ -2,6 +2,7 @@
 <html> 
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=700">
 <style>
 :root {
 	font:medium sans-serif;
@@ -17,6 +18,16 @@ a {
 }
 img[onclick]:active {
 	opacity:.8;
+}
+@media screen and (max-width:1200px) {
+	img {
+		zoom:.7;
+	}
+}
+@media screen and (max-width:900px) {
+	img {
+		zoom:.5;
+	}
 }
 </style>
 
@@ -584,14 +595,16 @@ customElements.define('voting-choice',class extends HTMLElement {
 			font:medium sans-serif;
 			text-align:center;
 			padding:2em;
+			white-space:nowrap;
 		"
 		id="choices-actual"
 	>
 	</div>
 	<div
 		style="
-			flex:.1;
+			flex:.15;
 			width:10em;
+			padding-top:1.5em;
 		"
 		id="score-board"
 	>
