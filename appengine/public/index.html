@@ -50,6 +50,7 @@ dbgwalk = ttl => document.title = ttl;
 //const contract_address = "0xdb8f262b6e02d9da528f2f01507a6f012567bcaf";
 //const contract_address = /^localhost/.test(location.host) ? '0x962C03798C92a97a6E266C719feA3B275Cd7a6B0' : '0x2E5a6C9516a9e887390db0a94DEDbb044DF4C409';
 const contract_address = '0x2E5a6C9516a9e887390db0a94DEDbb044DF4C409';
+const last_token = 10000;
 const abi = [
 	{
 		"anonymous": false,
@@ -450,7 +451,7 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 	// Non-user-initiated UI
 	freshChoices() {
 		let all_choices = [];
-		for (let ii = 0; ii != 1106; ii++) {
+		for (let ii = 0; ii != last_token; ii++) {
 			all_choices[ii] = ii + 1;
 		}
 		function selectCompetitors (how_many,full_set) { // TODO use the leaderboard dataset instead, IF it's been loaded
@@ -488,6 +489,7 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 				//	this.el_scores.innerHTML = safehtml`<small>Connect wallet to view.</small>`;
 				//	break;
 				//}
+				//let result = await this.contract.methods.getStats(contract_address,0,last_token).call();
 				let result = await this.contract.methods.getStats().call();
 				result = result.map(([observations,hits],ii) => {  // argument order: 36BFA4FB-2115-4D02-82FD-239E613D7557
 					return {
@@ -529,7 +531,7 @@ customElements.define('voting-choice',class extends HTMLElement {
 					<img
 						width="522"
 						height="610"
-						src="https://storage.googleapis.com/web3-demo-dev/irenedao/${ this.tokenId }.png"
+						src="https://storage.googleapis.com/web3-analytics-demo.appspot.com/unic/${ this.tokenId }.png"
 						style="
 							outline:1px solid;
 							cursor:pointer;
