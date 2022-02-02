@@ -9,7 +9,6 @@ interface VoteEmitter {
 }
 
 contract Votes is VoteEmitter {
-	uint itemCount = 1006;
 	mapping(address => mapping(uint => Stats)) public itemStats;
 
 	struct Stats {
@@ -30,11 +29,12 @@ contract Votes is VoteEmitter {
 		emit observe(msg.sender,token_contract,tkid_against);
 	}
 
-	function getStats(address token_contract) public returns (Stats[] memory) {
-		//return itemStats; // that would be nice, but..
-		Stats[] memory tub = new Stats[](itemCount);
-		for(uint ii = 0; ii != itemCount; ii++) {
-			tub[ii] = itemStats[token_contract][ii];
+	function getStats(address token_contract,uint first,uint last) public returns (Stats[] memory) {
+		//return itemStats[token_contract]; // that would be nice, but..
+		uint count = last-first; // this will throw if last-first goes negative. (..double-check it)
+		Stats[] memory tub = new Stats[](count);
+		for(uint ii = 0; ii != count; ii++) {
+			tub[ii] = itemStats[token_contract][first+ii];
 		}
 		return tub;
 	}
