@@ -33,14 +33,42 @@ img[onclick]:active {
 
 <!-- Google Aflytics -->
 <script>
+// Toggle old/new
+const anl = {
+	 old: false
+	,nu: true
+};
 
-(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+// The Old
+if (anl.old) {
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
-ga('create', 'UA-15123508-26', 'auto');
-ga('send', 'pageview');
+	ga('create', 'UA-15123508-26', 'auto');
+	ga('send', 'pageview');
+}
+else {
+	ga = new Function;
+}
+
+// The New
+if (anl.nu) {
+	//document.write(`<script async src="https://www.googletagmanager.com/gtag/js?id=304846371"><${''}/script>`);
+	document.write(`<script async src="https://www.googletagmanager.com/gtag/js?id=G-8GRHPC4MFV"><${''}/script>`);
+	window.dataLayer = window.dataLayer || [];
+	gtag = function () {
+		dataLayer.push(arguments);
+	}
+	gtag('js',new Date());
+	gtag('config','G-8GRHPC4MFV');
+	//gtag('event','sign_up',{ 'method': 'email' });
+	//gtag('event','view_video',{ 'send_to': 'G-8GRHPC4MFV' });
+}
+else {
+	gtag = new Function
+}
 </script>
 <!-- End Google Analytics -->
 
@@ -1132,6 +1160,7 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 			catch (ee) {
 				// Probably a private browsing error; Ignore 
 			}
+			gtag('event','login',{ method: 'web3' });
 		}
 		//
 		await this.web3UpdateNetwork();
@@ -1170,6 +1199,18 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 		ga('send','event','Voting','hit',this.user_wallet || "[no wallet]",vote_for);
 		ga('send','event','Voting','observe',this.user_wallet || "[no wallet]",vote_for);
 		ga('send','event','Voting','observe',this.user_wallet || "[no wallet]",vote_against);
+		gtag('event','vote_hit',{ wallet: this.user_wallet || "none", tokenId:vote_for });
+		gtag('event','vote_observe',{ wallet: this.user_wallet || "none", tokenId:vote_for });
+		gtag('event','vote_observe',{ wallet: this.user_wallet || "none", tokenId:vote_against });
+		gtag('event','select_item',{
+			//this.user_wallet || "[no wallet]",vote_for
+			 item_list_id: `votes_${contract_address}`
+			,item_list_name: 'Votes on #{ contract_address }'
+			,items: [{
+				 item_id: vote_for
+				,index: Number(vote_for)
+			}]
+		});
 		//
 		// Chain votes, if applicable:
 		switch (this.web3_state) {
@@ -1246,7 +1287,10 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 				});
 				result.sort((aa,bb) => measure(bb) - measure(aa)); // sort by popularity - LATER store these for better side-by-side voting
 				this.el_scores.innerHTML = result.slice(0,10).map(({tokenId},ii) => safehtml`
-					${ ii + 1 }. <a target="opensea" onclick="ga('send','event','Conversion','opensea','${ xssSafeguard(tokenId) }')" href="${ opensea_url(tokenId) }">#${ tokenId }</a>
+					${ ii + 1 }. <a target="opensea" onclick="
+					ga('send','event','Conversion','opensea','${ xssSafeguard(tokenId) }');
+					gtag('event','conversion',{platform:'opensea',tokenId:'${ xssSafeguard(tokenId) }'});
+				" href="${ opensea_url(tokenId) }">#${ tokenId }</a>
 				`).join('<br>');
 				console.log("Top 10 Peek",result.slice(0,10));
 				break;
@@ -1302,7 +1346,10 @@ customElements.define('voting-choice',class extends HTMLElement {
 
 					<br><br>
 
-					<a target="opensea" onclick="ga('send','event','Conversion','opensea','${ this.tokenId }')" href="${ opensea_url(this.tokenId) }">Buy on OpenSea</a>
+					<a target="opensea" onclick="
+						ga('send','event','Conversion','opensea','${ this.tokenId }');
+						gtag('event','conversion',{platform:'opensea',tokenId:'${ this.tokenId }'});
+					" href="${ opensea_url(this.tokenId) }">Buy on OpenSea</a>
 				`
 		}
 	}
