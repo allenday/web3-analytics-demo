@@ -15,6 +15,15 @@ npm install
 npm run deploy
 ```
 
+# Using Web3Auth on a real domain.
+
+- By default this example will work only on localhost.
+
+- If You want to host this example on any domain. You need to get Web3Auth clientId, configure a Web3Auth verifier for firebase from `https://dashboard.web3auth.io`  and configure your domain's firebase config on firebase console.
+
+- After configuring, replace the config in appengine/public/config.js file with your own firebase and web3auth config.
+
+
 ## deploying on-chain
 
 TODO

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@web3auth/core@0.6.1/dist/core.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@web3auth/openlogin-adapter@0.6.2/dist/openloginAdapter.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.6.8/firebase-app-compat.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.6.8/firebase-auth-compat.min.js"></script>
+  <script src="./config.js"></script>
+  <script src="./web3auth.js"></script>
+
+  <script>
+      async function connectWithWeb3Auth() {
+        const web3Auth = window.Web3Auth;
+        if(!web3Auth.isConnected()) return web3Auth.loginWithWeb3Auth()
+        const url = new URL(window.location.origin);
+        url.pathname = "index.html";
+        window.location.href = url.href
+        return;
+       
+    }
+
+    $(document).ready(async function () {
+  
+      await window.Web3Auth.init()
+      
+      firebase.auth().getRedirectResult()
+      .then(async (result) => {
+          if(!result.user) {
+            return connectWithWeb3Auth()
+          }
+          await window.Web3Auth.handleFirebaseRedirect(result)
+          return
+        })
+        .catch(error => {
+          const url = new URL(window.location.origin);
+          url.pathname = "index.html";
+          url.searchParams.append("error", error.message || "Failed to login");
+          window.location.href = url.href
+          return;
+        })
+    });
+
+    
+    
+  </script>
+</head>
+<body>
+  <div
+    style="
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+    "
+    id="loader"
+  >
+	<div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+</div>
+</body>
+<style>
+	.lds-ring {
+		display: inline-block;
+		position: relative;
+		width: 80px;
+		height: 80px;
+	}
+	.lds-ring div {
+		box-sizing: border-box;
+		display: block;
+		position: absolute;
+		width: 64px;
+		height: 64px;
+		margin: 8px;
+		border: 8px solid #0364ff;
+		border-radius: 50%;
+		animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+		border-color: #0364ff transparent transparent transparent;
+	}
+	.lds-ring div:nth-child(1) {
+		animation-delay: -0.45s;
+	}
+	.lds-ring div:nth-child(2) {
+		animation-delay: -0.3s;
+	}
+	.lds-ring div:nth-child(3) {
+		animation-delay: -0.15s;
+	}
+	@keyframes lds-ring {
+		0% {
+			transform: rotate(0deg);
+		}
+		100% {
+			transform: rotate(360deg);
+		}
+	}
+</style>
+</html>
