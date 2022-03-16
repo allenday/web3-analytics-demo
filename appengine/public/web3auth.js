@@ -97,8 +97,4 @@ const Web3Auth = (()=>{
   }
 })()
 
-$(document).ready(async function () {
-    console.log("window.ready")
-    window.Web3Auth = Web3Auth;
-    console.log("window.ready initialized")
-});
+window.Web3Auth = Web3Auth;

@@ -31,7 +31,6 @@ img[onclick]:active {
 }
 </style>
 
-<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@web3auth/core@0.6.1/dist/core.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@web3auth/openlogin-adapter@0.6.2/dist/openloginAdapter.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.6.8/firebase-app-compat.min.js"></script>
@@ -997,7 +996,7 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 	async startup () {
 
 		this.domStartup();
-		this.el_loader.show()
+		this.el_loader.hidden = false;
 
 		const web3completion = this.web3Startup();
 		setTimeout(async ()=>{
@@ -1012,7 +1011,7 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 		//
 		this.repaint();
 
-		this.el_loader.hide()
+		this.el_loader.hidden = true;
 
 	}
 
@@ -1021,9 +1020,8 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 		this.el_status = document.querySelector('#status-actual');
 		this.el_voting = document.querySelector('#choices-actual');
 		this.el_scores = document.querySelector('#score-board-actual');
+		this.el_loader = document.querySelector('#loader-overlay');
 		this.el_debug = document.querySelector('#debug-actual');
-
-		this.el_loader = $('#loader');
 	}
 	async web3Startup () {
 		const url = new URL(window.location.href);
@@ -1105,11 +1103,11 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 			await onLoginCallback(web3AuthInstance)
 		}
 
-		// this.el_loader.show()
+		// this.el_loader.hidden = false;
 		// firebase.auth().getRedirectResult()
 		// 	.then(window.Web3Auth.handleFirebaseRedirect)
 		// 	.catch(error => console.error(error))
-		// 	.finally(() => this.el_loader.hide())
+		// 	.finally(() => this.el_loader.hidden = true;)
 	}
 
 
@@ -1184,40 +1182,31 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 				break;
 			case WEB3_NOT_INSTALLED:
 				this.el_status.innerHTML = safehtml`
-				   <input type="button" value="Connect With Google x Firebase (Web3Auth)" onclick="AppActual.userWeb3AuthConnect()">
-					<br>
-					<span>or</span>
-					<br>
-					Install <a target="metamask" href="https://metamask.io/download/">MetaMask</a> or any Web3 wallet
-
-					<div>to vote on-chain!</div>`;
+					<div>To vote on-chain:</div>
+					<input type="button" value="Connect with Google&times;Firebase (Web3Auth)" onclick="AppActual.userWeb3AuthConnect()">
+					or
+					<input type="button" value="Install MetaMask" onclick="AppActual.userGetMetaMask()">
+				`;
 				break;
 			case WEB3_STANDBY:
 			case WEB3_CONNECTED:
-				let showWeb3Auth = false;
-				
-			    if (this.web3_state === WEB3_STANDBY) {
-					showWeb3Auth = true
-				}
 				if (this.web3_rightNetwork === false) {
 					this.el_status.innerHTML = safehtml`
-						Please switch your Metamask wallet to the Polygon network. <a href="https://docs.polygon.technology/docs/develop/metamask/config-polygon-on-metamask/" target="polygon">Learn how</a>.
+						To record your vote on-chain, please switch your Metamask wallet to the Polygon network. <a href="https://docs.polygon.technology/docs/develop/metamask/config-polygon-on-metamask/" target="polygon">Learn how</a>.
 						<div>or</div>
-						<input type="button" value="Connect With Google x Firebase (Web3Auth)" onclick="AppActual.userWeb3AuthConnect()">
-						<div>to record your vote on-chain!</div>
+						<input type="button" value="Connect with Google&times;Firebase (Web3Auth)" onclick="AppActual.userWeb3AuthConnect()">
 					`;
 					break;
 				}
 				switch (this.web3_state) {
 					case WEB3_STANDBY:
-						this.el_status.innerHTML = showWeb3Auth ? safehtml`
-							<input type="button" value="Connect With Google x Firebase (Web3Auth)" onclick="AppActual.userWeb3AuthConnect()">
-							<div>or</div>
-							<input type="button" value="Connect With Metamask" onclick="AppActual.userWalletConnect()">
-							<div>to record your vote on-chain!</div>
-						` : safehtml`
-							<input type="button" value="Connect With Metamask" onclick="AppActual.userWalletConnect()"> to record your vote on-chain!
-						`;
+						this.el_status.innerHTML = safehtml`
+							<div>To record your vote on-chain:</div>
+							<input type="button" value="Connect with Google&times;Firebase (Web3Auth)" onclick="AppActual.userWeb3AuthConnect()">
+							or
+							<input type="button" value="Connect with Metamask" onclick="AppActual.userWalletConnect()">
+						`
+						// prev: safehtml`<input type="button" value="Connect With Metamask" onclick="AppActual.userWalletConnect()"> to record your vote on-chain!`;
 						break;
 					case WEB3_CONNECTED:
 						this.el_status.innerHTML = safehtml`
@@ -1330,27 +1319,55 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 		switch (this.web3_state) {
 			case WEB3_CONNECTED:
 				try {
-					this.el_loader.show()
+					this.el_loader.hidden = false;
 
 					let result = await this.contract.methods.vote(token_address,vote_for,vote_against).send({
 						gasPrice: Web3.utils.toWei("200", "Gwei")
 						,from: this.user_wallet
 					});
 					console.log("txhash: ", result.transactionHash);
-					alert(`Transaction sent to blockchain. Transaction hash is: ${result.transactionHash}`);
+					//alert(`Transaction sent to blockchain. Transaction hash is: ${result.transactionHash}`);
 					this.freshChoices()
-				} catch (error) {
-					console.error("Error sending transaction: ", error);
-					alert("Error while sending transaction");
-				} finally {
-					this.el_loader.hide()
 				}
-				
+				catch (ee) {
+					console.error("Transaction report:",ee);
+					let err_silence = false;
+					let err_display;
+					try {
+						if (/Error: \{/.test(ee.message)) {
+							let details = JSON.parse(ee.message.substr('Error: '.length));
+							err_display = details.data.message;
+						}
+						if (/MetaMask.*User\sdenied/i.test(ee.message)) {
+							err_silence = true;
+						}
+					}
+					catch (ee_parse) {}
+					if (err_display) {
+						alert(`There was an error while sending transaction:\n${ err_display }`);
+					}
+					else if (!err_silence) {
+						alert("There was a problem while sending transaction.");
+					}
+				}
+				finally {
+					this.el_loader.hidden = true;
+				}
 				break;
 			default:
 				console.log("No chain voting required in current config.");
-				this.freshChoices()
+				this.freshChoices();
 				break;
+		}
+	}
+	userGetMetaMask () {
+		const mmurl = 'https://metamask.io/download/';
+		try {
+			open(mmurl);
+		}
+		catch (ee) {
+			console.log("MM button fallback:",ee);
+			location.href = this.getAttribute('href');
 		}
 	}
 	//
@@ -1420,7 +1437,7 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 				console.log("Top 10 Peek",result.slice(0,10));
 				break;
 			case WEB3_NOT_INSTALLED:
-				this.el_scores.innerHTML = safehtml`<small>Install wallet to view.</small>`;
+				this.el_scores.innerHTML = safehtml`<small>Connect wallet to view.</small>`;
 				break;
 			default:
 				this.el_scores.innerHTML = '...';
@@ -1496,17 +1513,18 @@ customElements.define('voting-choice',class extends HTMLElement {
 <body> 
 <div
 	style="
-		position: fixed;
-		width: 100%;
-		height: 100%;
-		background-color: black;
-		opacity: 0.3;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		z-index: 1;
+		position:fixed;
+		top:0;
+		left:0;
+		bottom:0;
+		right:0;
+		background:rgba(0,0,0,0.3);
+		align-items:center;
+		justify-content:center;
+		z-index:1;
 	"
-	id="loader"
+	id="loader-overlay"
+	hidden
 >
 	<div class="lds-ring"><div></div><div></div><div></div><div></div></div>
 </div>
@@ -1559,6 +1577,9 @@ customElements.define('voting-choice',class extends HTMLElement {
 
 </body>
 <style>
+	#loader-overlay:not([hidden]) {
+		display:flex;
+	}
 	.lds-ring {
 		display: inline-block;
 		position: relative;
