@@ -3,7 +3,7 @@
 * Get clientId from the project you created under Plug n Play
 * on Web3Auth Developer Dashboard https://dashboard.web3auth.io/
 */
-const clientId = "BJFhyOH7nxD4PRd1CYdSpakfp4Vikf_Knodm0BiS1GuElQN90iXlxh5tS-sIKWjmAqtDfLco0HgEesOtICPjmsM";
+const clientId = "BGUj1Ef3IIWmtH7T0axclWLQ4FZWTPkDJALoB_J3-F4szjCApDpBrGdJSk1hTpeZJVoTmRHO-rMjVBr7V9YG_EU";
 
  // get your firebase config from firebase console
 const firebaseConfig = {

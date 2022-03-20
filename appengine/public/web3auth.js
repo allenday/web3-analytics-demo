@@ -41,7 +41,7 @@ const Web3Auth = (()=>{
                  * name of custom verifier that you created on Web3Auth Developer Dashboard
                  * under Custom Auth section
                  */
-                verifier: "web3auth-firebase-demo",
+                verifier: "web3auth-firebase-google",
                 typeOfLogin: "jwt",
                 clientId,
                 },
