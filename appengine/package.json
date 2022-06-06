@@ -5,6 +5,8 @@
   "description": "integrate on-chain transactions with Google Analytics",
   "license": "MIT",
   "scripts": {
+    "dev": "tailwindcss build -i ./src/tailwind.css -o ./public/tailwind.css",
+    "build": "NODE_ENV=production npm run dev",
     "deploy": "yes | gcloud app deploy",
     "start": "node src/app.js"
   },
@@ -14,5 +16,8 @@
   },
   "engines": {
     "node": "16.x.x"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.0.24"
   }
 }
