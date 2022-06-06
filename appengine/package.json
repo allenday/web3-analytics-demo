@@ -5,7 +5,7 @@
   "description": "integrate on-chain transactions with Google Analytics",
   "license": "MIT",
   "scripts": {
-    "deploy": "yes | gcloud app deploy",
+    "deploy": "yes | gcloud --project web3-analytics-demo app deploy",
     "start": "node src/app.js"
   },
   "dependencies": {
