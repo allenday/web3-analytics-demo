@@ -1,41 +1,64 @@
 WITH
-customer AS ( --for demo purposes
-  SELECT "0x0c854db3034d33c0d7b31170188aae8fc5af56ea" AS wallet
-),
 onchain AS (
   SELECT *
-  FROM `public-data-finance.crypto_polygon.transactions`, customer
-  WHERE from_address = customer.wallet
-  AND DATE(block_timestamp) > "2022-02-23" 
+  FROM `public-data-finance.crypto_polygon.transactions`
+  WHERE TRUE
+  -- AND DATE(block_timestamp) > "2022-02-23" 
+
+  -- uncomment this join only against the last day of on-chain data
+  AND DATE(block_timestamp) = EXTRACT(DATE FROM CURRENT_TIMESTAMP())
 ),
 offchain AS (
-  SELECT event_timestamp,items
-  FROM `web3-analytics-demo.analytics_304846371.events_intraday_20220225` AS events JOIN UNNEST(items) AS items, customer
-  WHERE items.affiliation = customer.wallet
+  SELECT
+    event_timestamp,
+    user_pseudo_id,
+    device,
+    geo,
+    event_name,
+    event_params,
+    items,
+    REGEXP_REPLACE(items.item_list_name,"^votes:","") AS nft_collection, -- NFT collection ID
+    items.affiliation AS player_id, --customer wallet
+    items.quantity AS vote -- upvote/downvote
+
+  FROM `web3-analytics-demo.analytics_304846371.*` AS events JOIN UNNEST(items) AS items 
+  WHERE TRUE
   AND event_name = 'select_item'
-  AND event_timestamp > 1645721013034912 -- for demo purposes
 )
 
 SELECT 
-  offchain.event_timestamp,
-  -- ecommerce from GA4
-  REGEXP_REPLACE(offchain.items.item_list_name,"^votes:","") AS nft_collection, -- NFT collection ID
-  offchain.items.item_id AS nft_id, -- NFT ID
-  offchain.items.affiliation AS player_id, --customer wallet
-  offchain.items.quantity AS vote, -- upvote/downvote
-
   -- transaction data from BQ Public Datasets
   onchain.hash AS transaction_id, -- unique id of this tx
-  onchain.input -- same data as above, formatted for smart contract storage
+  -- EXTENDED DATA
+  -- onchain.input, -- same data as above, formatted for smart contract storage
+
+  -- ecommerce from GA4
+  -- ABBREVIATED DATA
+  offchain.user_pseudo_id, -- GA ID
+  offchain.player_id, --user wallet
+  offchain.items.item_id, -- voted item
+  offchain.vote, -- upvote/downvote
+  offchain.event_timestamp,
+  TIMESTAMP_MICROS(offchain.event_timestamp) AS td,
+  device.category AS device_category,
+  device.mobile_brand_name AS device_brand,
+  device.language AS device_language,
+  geo.country AS geo_country,
+  
+  -- EXTENDED DATA
+  -- offchain.user_pseudo_id, -- GA ID
+  -- offchain.player_id, --user wallet
+  -- offchain.vote, -- upvote/downvote
+  -- offchain.nft_collection, -- NFT collection ID
+  -- offchain.event_timestamp,
+  -- offchain.device, -- device attributes
+  -- offchain.geo, --  device location
+  -- offchain.items, -- ecommerce data (used here for in-browser gameplay events)
+  -- offchain.event_name, --  off-chain event attributes
+  -- offchain.event_params --  off-chain event attributes
 FROM
-  onchain, --polygon blockchain
-  offchain, --google analytics
-  customer --customer of interest (for demo purpose)
-WHERE
-  offchain.items.affiliation = customer.wallet
-  AND (
-    onchain.from_address = customer.wallet 
-    -- for customer 360, examine NFT holdings, etc
-    --   OR
-    -- onchain.to_address = customer.wallet
-  )
+  offchain LEFT JOIN onchain ON (offchain.items.affiliation = onchain.from_address)
+WHERE TRUE
+  -- uncomment this to show only events from web3-connected devices
+  -- AND player_id != '[no wallet]'
+ORDER BY event_timestamp DESC
