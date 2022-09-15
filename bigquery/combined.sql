@@ -27,11 +27,6 @@ offchain AS (
 )
 
 SELECT 
-  -- transaction data from BQ Public Datasets
-  onchain.hash AS transaction_id, -- unique id of this tx
-  -- EXTENDED DATA
-  -- onchain.input, -- same data as above, formatted for smart contract storage
-
   -- ecommerce from GA4
   -- ABBREVIATED DATA
   offchain.user_pseudo_id, -- GA ID
@@ -53,7 +48,12 @@ SELECT
   -- offchain.geo, --  device location
   -- offchain.items, -- ecommerce data (used here for in-browser gameplay events)
   -- offchain.event_name, --  off-chain event attributes
-  -- offchain.event_params --  off-chain event attributes
+  -- offchain.event_params, --  off-chain event attributes
+
+  -- transaction data from BQ Public Datasets
+  onchain.hash AS transaction_id -- unique id of this tx
+  -- EXTENDED DATA
+  -- onchain.input -- same data as above, formatted for smart contract storage
 FROM
   offchain LEFT JOIN onchain ON (offchain.items.affiliation = onchain.from_address)
 WHERE TRUE
