@@ -39,7 +39,6 @@ SELECT
   offchain.items.item_id, -- voted item
   offchain.vote, -- upvote/downvote
   TIMESTAMP_MICROS(offchain.event_timestamp) AS event_timestamp,
-  device.category AS device_category,
   device.mobile_brand_name AS device_brand,
   device.language AS device_language,
   geo.country AS geo_country,
