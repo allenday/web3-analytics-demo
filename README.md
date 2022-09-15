@@ -1,6 +1,7 @@
-![](web3-analytics-demo.png)
 
 # web3-analytics-demo
+
+![](hero.png)
 
 This repo contains a small example game. The purpose is to demonstrate how to
 integrate Google Analytics with a web3 dApp.
@@ -23,6 +24,8 @@ Analytics along with the user's web3 wallet address.
 optionally to have their vote recorded on-chain.
 
 ## Game components
+
+![](web3-analytics-demo.png)
 
 The game consists of 3 parts:
 
