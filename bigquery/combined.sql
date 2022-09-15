@@ -38,8 +38,7 @@ SELECT
   offchain.player_id, --user wallet
   offchain.items.item_id, -- voted item
   offchain.vote, -- upvote/downvote
-  offchain.event_timestamp,
-  TIMESTAMP_MICROS(offchain.event_timestamp) AS td,
+  TIMESTAMP_MICROS(offchain.event_timestamp) AS event_timestamp,
   device.category AS device_category,
   device.mobile_brand_name AS device_brand,
   device.language AS device_language,
