@@ -3,30 +3,31 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=700">
+<link rel="stylesheet" href="tailwind.css">
 <style>
 :root {
-	font:medium sans-serif;
+	/* font:medium sans-serif;
 	background:#222;
-	color:#DDD;
+	color:#DDD; */
 }
 voting-choice {
-	display:inline-block;
+	/* display:inline-block; */
 }
 a {
-	text-decoration:underline;
-	color:inherit;
+	/* text-decoration:underline;
+	color:inherit; */
 }
 img[onclick]:active {
-	opacity:.8;
+	/* opacity:.8; */
 }
 @media screen and (max-width:1200px) {
 	img {
-		zoom:.7;
+		/* zoom:.7; */
 	}
 }
 @media screen and (max-width:900px) {
 	img {
-		zoom:.5;
+		/* zoom:.5; */
 	}
 }
 </style>
@@ -39,7 +40,7 @@ img[onclick]:active {
 <script src="./web3auth.js"></script>
 
 
-<!-- Google Aflytics -->
+<!-- Google Analytics -->
 <script>
 // Toggle old/new
 const anl = {
@@ -80,6 +81,7 @@ else {
 </script>
 <!-- End Google Analytics -->
 
+<!-- Web3 -->
 <script src="https://unpkg.com/web3@1.7.0/dist/web3.min.js"></script>
 <script>
 dbgwalk = ttl => document.title = ttl;
@@ -1192,25 +1194,27 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 			case WEB3_CONNECTED:
 				if (this.web3_rightNetwork === false) {
 					this.el_status.innerHTML = safehtml`
-						To record your vote on-chain, please switch your Metamask wallet to the Polygon network. <a href="https://docs.polygon.technology/docs/develop/metamask/config-polygon-on-metamask/" target="polygon">Learn how</a>.
-						<div>or</div>
-						<input type="button" value="Connect with Google&times;Firebase (Web3Auth)" onclick="AppActual.userWeb3AuthConnect()">
+						<span>Record your vote on-chain by switching your Metamask wallet to the Polygon network. 
+						<a class="underline" href="https://docs.polygon.technology/docs/develop/metamask/config-polygon-on-metamask/" target="polygon">Learn how</a>.
+						</span>
+						<p>or</p>
+						<input type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" value="Connect with Google&times;Firebase (Web3Auth)" onclick="AppActual.userWeb3AuthConnect()">
 					`;
 					break;
 				}
 				switch (this.web3_state) {
 					case WEB3_STANDBY:
 						this.el_status.innerHTML = safehtml`
-							<div>To record your vote on-chain:</div>
-							<input type="button" value="Connect with Google&times;Firebase (Web3Auth)" onclick="AppActual.userWeb3AuthConnect()">
-							or
-							<input type="button" value="Connect with Metamask" onclick="AppActual.userWalletConnect()">
+							<div><p>To record your vote on-chain:</p>
+							<input class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button" value="Connect with Google&times;Firebase (Web3Auth)" onclick="AppActual.userWeb3AuthConnect()">
+							<p>or</p>
+							<input type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" value="Connect with Metamask" onclick="AppActual.userWalletConnect()">
 						`
 						// prev: safehtml`<input type="button" value="Connect With Metamask" onclick="AppActual.userWalletConnect()"> to record your vote on-chain!`;
 						break;
 					case WEB3_CONNECTED:
 						this.el_status.innerHTML = safehtml`
-							Wallet <span style="font:smaller monospace">${ this.user_wallet }</span> connected via Polygon. <a style="cursor:pointer" onclick="AppActual.userWalletDisconnect()">Disconnect</a>.
+							Wallet <span style="font:smaller monospace">${ this.user_wallet }</span> connected via Polygon. <a class="underline" style="cursor:pointer" onclick="AppActual.userWalletDisconnect()">Disconnect</a>.
 						`;
 						break;
 					default:
@@ -1393,8 +1397,10 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 		}
 		const competitors = selectCompetitors(2,all_choices);
 		document.querySelector('#choices-actual').innerHTML = safehtml`
-			<voting-choice tokenId="${ competitors[0] }"></voting-choice>
-			<voting-choice tokenId="${ competitors[1] }"></voting-choice>
+			<div class="flex flex-row m-2">
+				<voting-choice class="grow m-2" tokenId="${ competitors[0] }"></voting-choice>
+				<voting-choice  class="grow m-2" tokenId="${ competitors[1] }"></voting-choice>
+			</div>
 		`
 	}
 	async freshScoreBoard () {
@@ -1429,7 +1435,7 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 				});
 				result.sort((aa,bb) => measure(bb) - measure(aa)); // sort by popularity - LATER store these for better side-by-side voting
 				this.el_scores.innerHTML = result.slice(0,10).map(({tokenId},ii) => safehtml`
-					${ ii + 1 }. <a target="opensea" onclick="
+					${ ii + 1 }. <a class="underline" target="opensea" onclick="
 					ga('send','event','Conversion','opensea','${ xssSafeguard(tokenId) }');
 					gtag('event','conversion',{platform:'opensea',tokenId:'${ xssSafeguard(tokenId) }'});
 				" href="${ opensea_url(tokenId) }">#${ tokenId }</a>
@@ -1460,45 +1466,30 @@ customElements.define('voting-choice',class extends HTMLElement {
 					return;
 				}
 				this.innerHTML = safehtml`
+					<div class="p-6 flex flex-col bg-white bg-opacity-50 rounded-xl shadow-lg text-center">
 					<img
-						width="522"
-						height="610"
 						src="https://storage.googleapis.com/web3-analytics-demo.appspot.com/unic/${ this.tokenId }.png"
 						alt="Crypto Unicorn ${this.tokenId}"
-						style="
-							outline:1px solid;
-							cursor:pointer;
-						"
 						onclick="this.closest('voting-choice').onChoose()"
 					>
-
-					<br>
-
 					<input
 						type="button"
-						value="VOTE"
+						value="Vote for me"
 						onclick="this.closest('voting-choice').onChoose()"
-						style="
-							min-width:5em;
-							padding:.4em;
-							font-size:large;
-							margin:.4em 0;
-							cursor:pointer;
-						"
+						class="m-1 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
 					>
-
-					<br><br>
-
-					<a target="opensea" onclick="
+					<a class="underline"
+						target="opensea" onclick="
 						ga('send','event','Conversion','opensea','${ this.tokenId }');
 						gtag('event','conversion',{platform:'opensea',tokenId:'${ this.tokenId }'});
-					" href="${ opensea_url(this.tokenId) }">Buy on OpenSea</a>
+						" href="${ opensea_url(this.tokenId) }">Buy on OpenSea</a>
+					</div>
 				`
 		}
 	}
 	onChoose() {
 		//
-		// Find all other voting-choise elements, excluding this one:
+		// Find all other voting-choice elements, excluding this one:
 		let competing_choices = Array.from(document.querySelectorAll('voting-choice')).filter(el => el != this);
 		if (competing_choices.length != 1) {
 			throw new Error("We're expecting only one other choice to be present.");
@@ -1510,7 +1501,12 @@ customElements.define('voting-choice',class extends HTMLElement {
 
 
 </head> 
-<body> 
+<body class="h-max bg-gradient-to-b from-slate-200 to-slate-500">
+<div class="text-center text-5xl font-bold text-gray-800 py-5 px-6">
+	<p>
+		Vote for your favorite Unicorn!
+	</p>
+</div>
 <div
 	style="
 		position:fixed;
@@ -1529,52 +1525,18 @@ customElements.define('voting-choice',class extends HTMLElement {
 	<div class="lds-ring"><div></div><div></div><div></div><div></div></div>
 </div>
 
-<div
-	style="
-		font:monospace;
-		opacity:.5;
-		text-align:center;
-	" id="debug-actual"
-></div>
+<div id="debug-actual"></div>
 
-<div
-	style="
-		margin-top:1em;
-		min-height:1.4em;
-		text-align:center;
-	" id="status-actual"
-></div>
+<div id="status-actual" class="p-3 m-4 bg-white bg-opacity-50 rounded-xl shadow-lg text-center"></div>
 
-
-
-<div style="display:flex">
-	<div
-		style="
-			flex:1;
-			font:medium sans-serif;
-			text-align:center;
-			padding:2em;
-			white-space:nowrap;
-		"
-		id="choices-actual"
-	>
-	</div>
-	<div
-		style="
-			flex:.15;
-			width:10em;
-			padding-top:1.5em;
-		"
-		id="score-board"
-	>
-		<b>Top 10</b>
-		<br><br>
+<div id="content" class="container max-w-none flex flex-row">
+	<div class="basis-3/4" id="choices-actual"></div>
+	<div class="basis-1/4 flex flex-col p-6 m-4 bg-slate-400 bg-opacity-50 rounded-xl shadow-lg" id="score-board">
+		<p class="text-center text-2xl font-bold">Top 10</p>
 		<div id="score-board-actual">...</div>
-		<br><br>
-								<div><a href="https://github.com/allenday/web3-analytics-demo">source code</a>,<br/>follow <a href="https://twitter.com/allenday">@allenday</a></div>
 	</div>
 </div>
-
+<div id="footer" class="text-center text-slate-600"><a class="underline" href="https://twitter.com/allenday">@allenday</a> - <a class="underline" href="https://twitter.com/dtedesco1">@dtedesco1</a> - <a class="underline" href="https://github.com/allenday/web3-analytics-demo">source code</a> - 2022</div>
 </body>
 <style>
 	#loader-overlay:not([hidden]) {

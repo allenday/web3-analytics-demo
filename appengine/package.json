@@ -6,6 +6,8 @@
   "license": "MIT",
   "scripts": {
     "deploy": "yes | gcloud --project web3-analytics-demo app deploy",
+    "dev": "tailwindcss build -i ./src/tailwind.css -o ./public/tailwind.css",
+    "build": "NODE_ENV=production npm run dev",
     "start": "node src/app.js"
   },
   "dependencies": {
@@ -14,5 +16,8 @@
   },
   "engines": {
     "node": "16.x.x"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.0.24"
   }
 }
