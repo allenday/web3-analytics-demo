@@ -1,3 +1,5 @@
+![](web3-analytics-demo.png)
+
 # web3-analytics-demo
 
 This repo contains a small example game. The purpose is to demonstrate how to
