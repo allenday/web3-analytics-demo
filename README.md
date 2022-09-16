@@ -1,7 +1,7 @@
 
 # web3-analytics-demo
 
-![](hero.png)
+<img src="hero.png" width="400"/>
 
 This repo contains a small example game. The purpose is to demonstrate how to
 integrate Google Analytics with a web3 dApp.
