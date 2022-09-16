@@ -42,42 +42,14 @@ img[onclick]:active {
 
 <!-- Google Analytics -->
 <script>
-// Toggle old/new
-const anl = {
-	 old: false
-	,nu: true
-};
-
-// The Old
-if (anl.old) {
-	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-
-	ga('create', 'UA-15123508-26', 'auto');
-	ga('send', 'pageview');
+//document.write(`<script async src="https://www.googletagmanager.com/gtag/js?id=304846371"><${''}/script>`);
+document.write(`<script async src="https://www.googletagmanager.com/gtag/js?id=G-8GRHPC4MFV"><${''}/script>`);
+window.dataLayer = window.dataLayer || [];
+gtag = function () {
+	dataLayer.push(arguments);
 }
-else {
-	ga = new Function;
-}
-
-// The New
-if (anl.nu) {
-	//document.write(`<script async src="https://www.googletagmanager.com/gtag/js?id=304846371"><${''}/script>`);
-	document.write(`<script async src="https://www.googletagmanager.com/gtag/js?id=G-8GRHPC4MFV"><${''}/script>`);
-	window.dataLayer = window.dataLayer || [];
-	gtag = function () {
-		dataLayer.push(arguments);
-	}
-	gtag('js',new Date());
-	gtag('config','G-8GRHPC4MFV');
-	//gtag('event','sign_up',{ 'method': 'email' });
-	//gtag('event','view_video',{ 'send_to': 'G-8GRHPC4MFV' });
-}
-else {
-	gtag = new Function
-}
+gtag('js',new Date());
+gtag('config','G-8GRHPC4MFV');
 </script>
 <!-- End Google Analytics -->
 
@@ -89,9 +61,8 @@ dbgwalk = ttl => document.title = ttl;
 //const contract_address = "0xdb8f262b6e02d9da528f2f01507a6f012567bcaf";
 //const contract_address = /^localhost/.test(location.host) ? '0x962C03798C92a97a6E266C719feA3B275Cd7a6B0' : '';
 const runnnig_hot = false;///^localhost/.test(location.host);
-const contract_address = runnnig_hot ? '0x503bB4dE06913DCF3BBF63F2eA6D02362BDbbFf9' : '0x956e846c4Ab2a85Bc099B05e5B0186176c30eB37'; /* Token-agnostic version */
-//const contract_address = '0x2E5a6C9516a9e887390db0a94DEDbb044DF4C409';
-const required_chain = runnnig_hot ? 1337 : 137;
+const contract_address = '0x956e846c4Ab2a85Bc099B05e5B0186176c30eB37'; /* Token-agnostic version */
+const required_chain = 137;
 const token_address = '0xdc0479cc5bba033b3e7de9f178607150b3abce1f';
 const opensea_url_extras = {
 	 137: 'matic/'
@@ -1290,9 +1261,6 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 		//alert(`Dispatching vote for #${ vote_for } and against #${ vote_against }`);
 		//
 		// GA Votes:
-		ga('send','event','Voting','hit',this.user_wallet || "[no wallet]",vote_for);
-		ga('send','event','Voting','observe',this.user_wallet || "[no wallet]",vote_for);
-		ga('send','event','Voting','observe',this.user_wallet || "[no wallet]",vote_against);
 		gtag('event','vote_hit',{ wallet: this.user_wallet || "none", tokenId:vote_for });
 		gtag('event','vote_observe',{ wallet: this.user_wallet || "none", tokenId:vote_for });
 		gtag('event','vote_observe',{ wallet: this.user_wallet || "none", tokenId:vote_against });
@@ -1436,7 +1404,6 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 				result.sort((aa,bb) => measure(bb) - measure(aa)); // sort by popularity - LATER store these for better side-by-side voting
 				this.el_scores.innerHTML = result.slice(0,10).map(({tokenId},ii) => safehtml`
 					${ ii + 1 }. <a class="underline" target="opensea" onclick="
-					ga('send','event','Conversion','opensea','${ xssSafeguard(tokenId) }');
 					gtag('event','conversion',{platform:'opensea',tokenId:'${ xssSafeguard(tokenId) }'});
 				" href="${ opensea_url(tokenId) }">#${ tokenId }</a>
 				`).join('<br>');
@@ -1480,7 +1447,6 @@ customElements.define('voting-choice',class extends HTMLElement {
 					>
 					<a class="underline"
 						target="opensea" onclick="
-						ga('send','event','Conversion','opensea','${ this.tokenId }');
 						gtag('event','conversion',{platform:'opensea',tokenId:'${ this.tokenId }'});
 						" href="${ opensea_url(this.tokenId) }">Buy on OpenSea</a>
 					</div>
