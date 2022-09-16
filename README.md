@@ -27,7 +27,7 @@ optionally to have their vote recorded on-chain.
 
 ![](web3-analytics-demo.png)
 
-The game consists of 3 parts:
+The game consists of 3 custom-made parts:
 
 * [appengine](./appengine) - HTML/CSS/JS assets for the client-side game logic
 * [solidity](./solidity) - Solidity assets for the on-chain game logic (simply
@@ -44,6 +44,7 @@ The game consists of 3 parts:
 
 ```
 cd appengine
+gcloud config set project your-project-name
 
 # install node dependencies
 npm install
