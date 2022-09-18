@@ -3,8 +3,27 @@
 
 <img src="hero.png" width="400"/>
 
-This repo contains a small example game. The purpose is to demonstrate how to
-integrate Google Analytics with a web3 dApp.
+## Overview
+
+This repo contains a simple web3 game. The purpose of the game is to
+demonstrate how to integrate Google Analytics with a web3 dApp for the purposes
+of game optimization.
+
+## Prerequisities
+
+* Set up a [Google Analytics](https://analytics.google.com/)
+property and have its tracking ID handy. The tracking ID looks like
+`UA-XXXXXXXX-X`. [How to find it](https://www.youtube.com/watch?v=l2tNKF7Wei8).
+
+* Set up a Google Cloud project and enable [Google
+  AppEngine](https://cloud.google.com/appengine).
+
+* Install the [Google Cloud SDK](https://cloud.google.com/sdk) - you'll need
+  the `gcloud` command-line interface.
+
+* NodeJS NPM - you'll need the `node` and `npm` command-line interface.
+
+## Game details
 
 The game is simple. On page-load, two NFTs from a collection (preconfigured)
 appear side by side, and the player can click either of them. The clicked item
@@ -14,7 +33,7 @@ are selected at random, and the gameplay continues.
 There are three possible things that can happen during gameplay, related to the
 web3 wallet status.
 
-## Game modes
+### Game modes
 
 1. If the user doesn't have - or has not connected - a web3 wallet, gameplay
 events are logged to Google Analytics like an ordinary web2 game.
@@ -23,7 +42,7 @@ Analytics along with the user's web3 wallet address.
 3. As a variant of (2), when a web3 wallet is connected the user can
 optionally to have their vote recorded on-chain.
 
-## Game components
+### Game components
 
 ![](web3-analytics-demo.png)
 
@@ -39,6 +58,24 @@ The game consists of 3 custom-made parts:
   on-chain events where possible (see game mode 1, above).
 
 ## Development / Deployment
+
+### Deploying on-chain
+
+If you're interested to combine Google Analytics data with on-chain data, I
+recommend you deploy to Polygon mainnet. It's inexpensive to deploy a contract,
+and the dataset is free to query. Find the [Polygon Public Dataset in Google
+BigQuery](https://console.cloud.google.com/marketplace/product/public-data-finance/crypto-polygon-dataset?project=public-data-finance) (`public-data-finance:crypto_polygon`)
+
+TODO
+- how to deploy the contract
+  - capture contract address to index.html
+  - capture ABI to index.html
+
+Note the address at which your contract was deployed and set an environment variable, like:
+
+```
+export CONTRACT_ADDRESS=0x00000000000000000000000000001234
+```
 
 ### working with NodeJS / Google AppEngine
 
@@ -67,12 +104,6 @@ npm run deploy
 
 ### deploying on-chain
 
-TODO
-- document testnet we're using (Polgyon Mumbai preferred)
-  - test faucet(s)
-- how to deploy the contract
-  - capture contract address to index.html
-  - capture ABI to index.html
 
 ### integrating with Google Analytics
 
@@ -89,3 +120,4 @@ TODO
 - [Polygon Public Dataset in Google BigQuery](https://console.cloud.google.com/marketplace/product/public-data-finance/crypto-polygon-dataset?project=public-data-finance) *public-data-finance:crypto_polygon*
 - [GA4 BQ streaming export](https://support.google.com/analytics/answer/9823238#step3&zippy=%2Cin-this-article)
 - Google Data Studio
+
