@@ -7,7 +7,7 @@
   "scripts": {
     "deploy": "yes | gcloud app deploy",
     "dev": "tailwindcss build -i ./src/tailwind.css -o ./public/tailwind.css",
-    "build": "NODE_ENV=production npm run dev",
+    "build": "sh ./build-index.sh && NODE_ENV=production npm run dev",
     "start": "node src/app.js"
   },
   "dependencies": {
