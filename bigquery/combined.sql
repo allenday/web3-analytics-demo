@@ -1,12 +1,15 @@
 WITH
 onchain AS (
-  SELECT *
+  SELECT *,
+  CAST(CAST(REGEXP_REPLACE(CONCAT('0x',SUBSTR(input,75,64)),'x0+','x') AS INT64) AS STRING) AS vote_for,
+  CAST(CAST(REGEXP_REPLACE(CONCAT('0x',SUBSTR(input,75+64,64)),'x0+','x') AS INT64) AS STRING) AS vote_against
   FROM `public-data-finance.crypto_polygon.transactions`
   WHERE TRUE
   -- AND DATE(block_timestamp) > "2022-02-23" 
 
   -- uncomment this join only against the last day of on-chain data
   AND DATE(block_timestamp) = EXTRACT(DATE FROM CURRENT_TIMESTAMP())
+  AND to_address = '0xd295fa4917aac94ee05f22316df10dc7be20946b'
 ),
 offchain AS (
   SELECT
@@ -36,8 +39,8 @@ SELECT
   TIMESTAMP_MICROS(offchain.event_timestamp) AS event_timestamp,
   device.mobile_brand_name AS device_brand,
   device.language AS device_language,
-  geo.country AS geo_country,
-  
+  --geo.country AS geo_country,
+  geo,
   -- EXTENDED DATA
   -- offchain.user_pseudo_id, -- GA ID
   -- offchain.player_id, --user wallet
@@ -55,7 +58,15 @@ SELECT
   -- EXTENDED DATA
   -- onchain.input -- same data as above, formatted for smart contract storage
 FROM
-  offchain LEFT JOIN onchain ON (offchain.items.affiliation = onchain.from_address)
+  offchain LEFT JOIN onchain ON 
+  (offchain.player_id = onchain.from_address 
+    AND 
+    (
+      (offchain.items.item_id = onchain.vote_for AND offchain.vote = 1)
+      OR
+      (offchain.items.item_id = onchain.vote_against AND offchain.vote = -1)
+    )
+  )
 WHERE TRUE
   -- uncomment this to show only events from web3-connected devices
   -- AND player_id != '[no wallet]'
