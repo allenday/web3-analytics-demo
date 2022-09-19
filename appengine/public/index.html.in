@@ -746,10 +746,10 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 					}
 				});
 				result.sort((aa,bb) => measure(bb) - measure(aa)); // sort by popularity - LATER store these for better side-by-side voting
-				this.el_scores.innerHTML = result.slice(0,10).map(({tokenId},ii) => safehtml`
-					${ ii + 1 }. <a class="underline" target="opensea" onclick="
+				this.el_scores.innerHTML = result.slice(0,10).map(({tokenId,observations,hits},ii) => safehtml`
+					<nobr>${ ii + 1 }. ${ tokenId } (${ hits } wins, ${ observations } matches) <a class="underline" target="opensea" onclick="
 					gtag('event','conversion',{platform:'opensea',tokenId:'${ xssSafeguard(tokenId) }'});
-				" href="${ opensea_url(tokenId) }">#${ tokenId }</a>
+				" href="${ opensea_url(tokenId) }"><nobr><img width="50px" src="___TOKEN_BUCKET_PREFIX___${ tokenId }.png"></a></nobr>
 				`).join('<br>');
 				console.log("Top 10 Peek",result.slice(0,10));
 				break;
