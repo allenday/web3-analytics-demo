@@ -42,42 +42,16 @@ img[onclick]:active {
 
 <!-- Google Analytics -->
 <script>
-// Toggle old/new
-const anl = {
-	 old: false
-	,nu: true
-};
-
-// The Old
-if (anl.old) {
-	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-
-	ga('create', 'UA-15123508-26', 'auto');
-	ga('send', 'pageview');
+ga = new Function;
+document.write(`<script async src="https://www.googletagmanager.com/gtag/js?id=___GTAG_ID___"><${''}/script>`); // G-8GRHPC4MFV
+window.dataLayer = window.dataLayer || [];
+gtag = function () {
+	dataLayer.push(arguments);
 }
-else {
-	ga = new Function;
-}
-
-// The New
-if (anl.nu) {
-	//document.write(`<script async src="https://www.googletagmanager.com/gtag/js?id=304846371"><${''}/script>`);
-	document.write(`<script async src="https://www.googletagmanager.com/gtag/js?id=G-8GRHPC4MFV"><${''}/script>`);
-	window.dataLayer = window.dataLayer || [];
-	gtag = function () {
-		dataLayer.push(arguments);
-	}
-	gtag('js',new Date());
-	gtag('config','G-8GRHPC4MFV');
-	//gtag('event','sign_up',{ 'method': 'email' });
-	//gtag('event','view_video',{ 'send_to': 'G-8GRHPC4MFV' });
-}
-else {
-	gtag = new Function
-}
+gtag('js',new Date());
+gtag('config','___GTAG_ID___');
+//gtag('event','sign_up',{ 'method': 'email' });
+//gtag('event','view_video',{ 'send_to': 'G-8GRHPC4MFV' });
 </script>
 <!-- End Google Analytics -->
 

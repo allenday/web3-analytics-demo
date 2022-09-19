@@ -74,7 +74,9 @@ TODO
 Note the address at which your contract was deployed and set an environment variable, like:
 
 ```
+export GTAG_ID=G-XXXXXXXXXX
 export CONTRACT_ADDRESS=0x00000000000000000000000000001234
+export TOKEN_ADDRESS=0x00000000000000000000000000002345
 ```
 
 ### working with NodeJS / Google AppEngine
