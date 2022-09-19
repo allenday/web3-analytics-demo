@@ -18,9 +18,9 @@ of game optimization.
 
 ## Prerequisities
 
-* Set up a [Google Analytics](https://analytics.google.com/)
+* Set up a [Google Analytics](https://analytics.google.com/) *version 4*
 property and have its tracking ID handy. The tracking ID looks like
-`UA-XXXXXXXX-X`. [How to find it](https://www.youtube.com/watch?v=l2tNKF7Wei8).
+`G-XXXXXXXXXX`.
 
 * Set up a Google Cloud project and enable [Google
   AppEngine](https://cloud.google.com/appengine).
