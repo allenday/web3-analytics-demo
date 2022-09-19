@@ -29,7 +29,7 @@ contract Votes is VoteEmitter {
 		emit observe(msg.sender,token_contract,tkid_against);
 	}
 
-	function getStats(address token_contract,uint first,uint last) public returns (Stats[] memory) {
+	function getStats(address token_contract,uint first,uint last) public view returns (Stats[] memory) {
 		//return itemStats[token_contract]; // that would be nice, but..
 		uint count = last-first; // this will throw if last-first goes negative. (..double-check it)
 		Stats[] memory tub = new Stats[](count);

@@ -5,9 +5,30 @@
 
 ## Overview
 
-It is inevitable for Web2 and Web3 to co-exist, making it essential for us to have a good understanding on how to leverage existing web2 toolings such as Google Analytics and BigQuery which gives users access to Web3 analytics and combine it with Web3 tools such as Web3Auth/Metamask for user authentication to easily create dApps and extract user analytics and data needed for the growth of applications. 
+It is inevitable for Web2 and Web3 to co-exist, making it essential for us to 
+have a good understanding on how to leverage existing web2 toolings such as 
+Google Analytics and BigQuery which gives users access to Web3 analytics and 
+combine it with Web3 tools such as Web3Auth/Metamask for user authentication to 
+easily create dApps and extract user analytics and data needed for the growth 
+of applications. 
 
-This repo contains a simple Web3 game to showcase the capabilities of the mentioned tools for founders, digital marketers and developers to extract the relevant insights they need for game optimization.
+This repo contains a simple web3 game. The purpose of the game is to
+demonstrate how to integrate Google Analytics with a web3 dApp for the purposes
+of game optimization.
+
+## Prerequisities
+
+* Set up a [Google Analytics](https://analytics.google.com/)
+property and have its tracking ID handy. The tracking ID looks like
+`UA-XXXXXXXX-X`. [How to find it](https://www.youtube.com/watch?v=l2tNKF7Wei8).
+
+* Set up a Google Cloud project and enable [Google
+  AppEngine](https://cloud.google.com/appengine).
+
+* Install the [Google Cloud SDK](https://cloud.google.com/sdk) - you'll need
+  the `gcloud` command-line interface.
+
+* NodeJS NPM - you'll need the `node` and `npm` command-line interface.
 
 ## Game details
 
@@ -125,12 +146,27 @@ Finally, for Firebase hosting setup,
 
 ### Deploying on-chain
 
+If you're interested to combine Google Analytics data with on-chain data, I
+recommend you deploy to Polygon mainnet. It's inexpensive to deploy a contract,
+and the dataset is free to query. Find the [Polygon Public Dataset in Google
+BigQuery](https://console.cloud.google.com/marketplace/product/public-data-finance/crypto-polygon-dataset?project=public-data-finance) (`public-data-finance:crypto_polygon`)
+
+Note the address at which your contract was deployed and set an environment variable, like:
+
+```
+export GTAG_ID=G-XXXXXXXXXX
+export CONTRACT_ADDRESS=0x00000000000000000000000000001234
+export TOKEN_ADDRESS=0x00000000000000000000000000002345
+```
+
+These will be used when you run `npm run build`
+
 #### Metamask integration - Deploy the smart contract 
 
 You can use various Solidity IDEs eg, [Remix](https://remix-project.org/), [Hardhat](https://hardhat.org/) to deploy the smart contract in the TokenVotes.sol file. Once you have compiled the smart contract, select injected provider - metamask as your environment and deploy on Polygon mainnet. 
 
-* Capture the contract address and change it in the index.html file
-* Capture ABI and change it in the index.html
+TODO
+- capture ABI to index.html
 
 ### Analytics
 
@@ -143,3 +179,4 @@ If you're interested to combine Google Analytics data with on-chain data, it is 
 TODO - queries 
 - [Polygon Public Dataset in Google BigQuery](https://console.cloud.google.com/marketplace/product/public-data-finance/crypto-polygon-dataset?project=public-data-finance) *public-data-finance:crypto_polygon*
 - Google Data Studio
+
