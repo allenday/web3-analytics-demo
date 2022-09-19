@@ -652,7 +652,7 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 	}
 	//
 	// Non-user-initiated UI
-	freshChoices() {
+	async freshChoices() {
 		function measure ({observations,hits}) {
 			return (hits/observations) || 0;
 		}
@@ -674,7 +674,7 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 			}
 			return answer;
 		}
-		function selectMatchedCompetitors (how_many,full_set) {
+		async function selectMatchedCompetitors (how_many,full_set) {
 			if (!(how_many > 0)) throw new Error("Check range.");
 			if (how_many > full_set.length) throw new Error("Check set.");
 			let ranked = await this.contract.methods.getStats().call();
@@ -688,24 +688,26 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 			ranked.sort((aa,bb) => measure(bb) - measure(aa)); // sort by popularity - LATER store these for better side-by-side voting
 			//
 			const rnd_index = Math.random() * ranked.length;
-			compA = ranked[rnd_index]{tokenId};
+			compA = ranked[rnd_index][0];
 			compB = 0;
 			if (rnd_index == 0) {
-				compB = ranked[rnd_index+1]{tokenId};
+				compB = ranked[rnd_index+1][0];
 			}
 			else {
-				compB = ranked[rnd_index-1]{tokenId};
+				compB = ranked[rnd_index-1][0];
 			}
 			let answer = [compA, compB];
 			return answer;
 		}
 		var competitors;
-		case WEB3_STANDBY:
-		case WEB3_CONNECTED:
-			competitors = selectMatchedCompetitors(2,all_choices);
-		case WEB3_NOT_INSTALLED:
-		default:
-			competitors = selectRandomCompetitors(2,all_choices);
+		switch (this.web3_state) {
+			case WEB3_STANDBY:
+			case WEB3_CONNECTED:
+				competitors = selectMatchedCompetitors(2,all_choices);
+			case WEB3_NOT_INSTALLED:
+			default:
+				competitors = selectRandomCompetitors(2,all_choices);
+		}
 		document.querySelector('#choices-actual').innerHTML = safehtml`
 			<div class="flex flex-row m-2">
 				<voting-choice class="grow m-2" tokenId="${ competitors[0] }"></voting-choice>
