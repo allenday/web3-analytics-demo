@@ -40,7 +40,7 @@ are selected at random, and the gameplay continues.
 There are three possible things that can happen during gameplay, related to the
 web3 wallet status.
 
-### Game modes
+### Data collection modes
 
 1. If the user doesn't have - or has not connected - a web3 wallet, gameplay
 events are logged to Google Analytics like an ordinary web2 game.
