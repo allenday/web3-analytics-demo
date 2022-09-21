@@ -77,6 +77,7 @@ Note the address at which your contract was deployed and set an environment vari
 export GTAG_ID=G-XXXXXXXXXX
 export CONTRACT_ADDRESS=0x00000000000000000000000000001234
 export TOKEN_ADDRESS=0x00000000000000000000000000002345
+export TOKEN_URI_PREFIX=https://storage.googleapis.com/some-bucket/
 ```
 
 ### working with NodeJS / Google AppEngine
@@ -122,4 +123,5 @@ TODO
 - [Polygon Public Dataset in Google BigQuery](https://console.cloud.google.com/marketplace/product/public-data-finance/crypto-polygon-dataset?project=public-data-finance) *public-data-finance:crypto_polygon*
 - [GA4 BQ streaming export](https://support.google.com/analytics/answer/9823238#step3&zippy=%2Cin-this-article)
 - Google Data Studio
+
 
