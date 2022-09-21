@@ -662,7 +662,7 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 			if (ii in token_skips) continue;
 			all_choices.push(ii);
 		}
-		function selectRandomCompetitors (how_many,full_set) { // TODO use the leaderboard dataset instead, IF it has been loaded
+		let selectRandomCompetitors = (how_many,full_set) => { // TODO use the leaderboard dataset instead, IF it has been loaded
 			if (!(how_many > 0)) throw new Error("Check range.");
 			if (how_many > full_set.length) throw new Error("Check set.");
 			//
@@ -674,7 +674,7 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 			}
 			return answer;
 		}
-		async function selectMatchedCompetitors (how_many,full_set) {
+		let selectMatchedCompetitors = async (how_many,full_set) => {
 			if (!(how_many > 0)) throw new Error("Check range.");
 			if (how_many > full_set.length) throw new Error("Check set.");
 			let ranked = await this.contract.methods.getStats().call();
