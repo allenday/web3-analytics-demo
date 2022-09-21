@@ -62,9 +62,9 @@ dbgwalk = ttl => document.title = ttl;
 const required_chain = 137;
 const contract_address = '___CONTRACT_ADDRESS___';
 const token_address = '___TOKEN_ADDRESS___';
-const opensea_url_extras = {
-	 137: 'matic/'
-	,1337: 'matic/'
+const rarible_url_extras = {
+	 137: 'polygon/'
+	,1337: 'polygon/'
 }
 
 const last_token = 1024;
@@ -245,9 +245,9 @@ function xssSafeguard(token) {
 	}
 	return token;
 }
-function opensea_url(tokenId) {
+function rarible_url(tokenId) {
 	if (typeof tokenId != 'number') throw new TypeError;
-	return `https://opensea.io/assets/${ (opensea_url_extras[required_chain] || '') }${ token_address }/${ tokenId }`;
+	return `https://rarible.com/token/${ (rarible_url_extras[required_chain] || '') }${ token_address }:${ tokenId }`;
 }
 
 // State Manager
@@ -747,9 +747,9 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 				});
 				result.sort((aa,bb) => measure(bb) - measure(aa)); // sort by popularity - LATER store these for better side-by-side voting
 				this.el_scores.innerHTML = result.slice(0,10).map(({tokenId,observations,hits},ii) => safehtml`
-					<nobr>${ ii + 1 }. ${ tokenId } (${ hits } wins, ${ observations } matches) <a class="underline" target="opensea" onclick="
-					gtag('event','conversion',{platform:'opensea',tokenId:'${ xssSafeguard(tokenId) }'});
-				" href="${ opensea_url(tokenId) }"><nobr><img width="50px" src="___TOKEN_BUCKET_PREFIX___${ tokenId }.png"></a></nobr>
+					<nobr>${ ii + 1 }. ${ tokenId } (${ hits } wins, ${ observations } matches) <a class="underline" target="rarible" onclick="
+					gtag('event','conversion',{platform:'rarible',tokenId:'${ xssSafeguard(tokenId) }'});
+				" href="${ rarible_url(tokenId) }"><nobr><img width="50px" src="___TOKEN_BUCKET_PREFIX___${ tokenId }.png"></a></nobr>
 				`).join('<br>');
 				console.log("Top 10 Peek",result.slice(0,10));
 				break;
@@ -790,9 +790,9 @@ customElements.define('voting-choice',class extends HTMLElement {
 						class="m-1 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
 					>
 					<a class="underline"
-						target="opensea" onclick="
-						gtag('event','conversion',{platform:'opensea',tokenId:'${ this.tokenId }'});
-						" href="${ opensea_url(this.tokenId) }">Buy on OpenSea</a>
+						target="rarible" onclick="
+						gtag('event','conversion',{platform:'rarible',tokenId:'${ this.tokenId }'});
+						" href="${ rarible_url(this.tokenId) }">Buy on Rarible</a>
 					</div>
 				`
 		}
