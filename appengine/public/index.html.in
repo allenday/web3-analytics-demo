@@ -620,6 +620,7 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 						}
 						if (/MetaMask.*User\sdenied/i.test(ee.message)) {
 							err_silence = true;
+							queueMicrotask(() => this.freshChoices()); // load fresh choices after rejection
 						}
 					}
 					catch (ee_parse) {}
