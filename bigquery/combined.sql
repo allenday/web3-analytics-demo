@@ -67,6 +67,7 @@ FROM
       (offchain.items.item_id = onchain.vote_against AND offchain.vote = -1)
     )
   )
+  AND CAST(offchain.items.item_id AS INT64) BETWEEN 1 AND 1024
 WHERE TRUE
   -- uncomment this to show only events from web3-connected devices
   -- AND player_id != '[no wallet]'
