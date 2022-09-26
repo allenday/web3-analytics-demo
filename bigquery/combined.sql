@@ -66,7 +66,9 @@ SELECT
   onchain.hash AS transaction_id, -- unique id of this tx
   -- EXTENDED DATA
   -- onchain.input -- same data as above, formatted for smart contract storage
-  leaderboard.*
+  leaderboard.wins,
+  leaderboard.trials,
+  leaderboard.winrate
 FROM
   leaderboard,
   offchain LEFT JOIN onchain ON 
