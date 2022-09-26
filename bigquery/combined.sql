@@ -20,13 +20,22 @@ offchain AS (
     event_name,
     event_params,
     items,
+    CAST(items.item_id AS INT64) AS item_id,
     REGEXP_REPLACE(items.item_list_name,"^votes:","") AS nft_collection, -- NFT collection ID
     items.affiliation AS player_id, --customer wallet
-    items.quantity AS vote -- upvote/downvote
+    CASE WHEN items.quantity = 1 THEN 1 ELSE 0 END AS vote
+    -- items.quantity AS vote -- upvote/downvote
 
   FROM `web3-analytics-demo.analytics_304846371.*` AS events JOIN UNNEST(items) AS items 
   WHERE TRUE
   AND event_name = 'select_item'
+),
+leaderboard AS (
+  SELECT item_id, SUM(vote) AS wins, COUNT(vote) AS trials, SAFE_DIVIDE(SUM(vote),COUNT(vote)) AS winrate
+  FROM offchain
+  GROUP BY item_id
+  HAVING trials >= 3
+  ORDER BY winrate DESC, wins DESC
 )
 
 SELECT 
@@ -54,10 +63,12 @@ SELECT
   -- offchain.event_params, --  off-chain event attributes
 
   -- transaction data from BQ Public Datasets
-  onchain.hash AS transaction_id -- unique id of this tx
+  onchain.hash AS transaction_id, -- unique id of this tx
   -- EXTENDED DATA
   -- onchain.input -- same data as above, formatted for smart contract storage
+  leaderboard.*
 FROM
+  leaderboard,
   offchain LEFT JOIN onchain ON 
   (offchain.player_id = onchain.from_address 
     AND 
@@ -69,6 +80,7 @@ FROM
   )
   AND CAST(offchain.items.item_id AS INT64) BETWEEN 1 AND 1024
 WHERE TRUE
+  AND leaderboard.item_id = offchain.item_id
   -- uncomment this to show only events from web3-connected devices
   -- AND player_id != '[no wallet]'
 ORDER BY event_timestamp DESC
