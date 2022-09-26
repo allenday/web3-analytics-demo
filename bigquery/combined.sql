@@ -28,7 +28,8 @@ offchain AS (
 
   FROM `web3-analytics-demo.analytics_304846371.*` AS events JOIN UNNEST(items) AS items 
   WHERE TRUE
-  AND event_name = 'select_item'
+    AND event_name = 'select_item'
+    AND CAST(items.item_id AS INT64) BETWEEN 1 AND 1024
 ),
 leaderboard AS (
   SELECT item_id, SUM(vote) AS wins, COUNT(vote) AS trials, SAFE_DIVIDE(SUM(vote),COUNT(vote)) AS winrate
