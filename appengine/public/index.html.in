@@ -655,7 +655,7 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 	// Non-user-initiated UI
 	async freshChoices() {
 		function measure ({observations,hits}) {
-			return (hits/observations) || 0;
+			return (hits/(observations+0.0)) || 0;
 		}
 		//
 		let all_choices = [];
@@ -718,7 +718,7 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 	}
 	async freshScoreBoard () {
 		function measure ({observations,hits}) {
-			return (hits/observations) || 0;
+			return (hits/(observations+0.0)) || 0;
 		}
 		//
 		//console.log("eh?",this,this.web3_state);
@@ -841,11 +841,14 @@ customElements.define('voting-choice',class extends HTMLElement {
 <div id="status-actual" class="p-3 m-4 bg-white bg-opacity-50 rounded-xl shadow-lg text-center"></div>
 
 <div id="content" class="container max-w-none flex flex-row">
+	<div class="" id="choices-actual"></div>
+<!--
 	<div class="basis-3/4" id="choices-actual"></div>
 	<div class="basis-1/4 flex flex-col p-6 m-4 bg-slate-400 bg-opacity-50 rounded-xl shadow-lg" id="score-board">
 		<p class="text-center text-2xl font-bold">Top 10</p>
 		<div id="score-board-actual">...</div>
 	</div>
+-->
 </div>
 <div id="footer" class="text-center text-slate-600"><a class="underline" href="https://twitter.com/allenday">@allenday</a> - <a class="underline" href="https://twitter.com/dtedesco1">@dtedesco1</a> - <a class="underline" href="https://github.com/allenday/web3-analytics-demo">source code</a> - 2022</div>
 </body>
