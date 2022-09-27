@@ -34,7 +34,7 @@ img[onclick]:active {
 
 <script src="https://cdn.jsdelivr.net/npm/@web3auth/core@0.6.1/dist/core.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@web3auth/openlogin-adapter@0.6.2/dist/openloginAdapter.umd.min.js"></script>
-<script src="../dist/bundle.js"></script>
+<script src="./bundle.js"></script>
 
 
 <!-- Google Analytics -->
