@@ -7,7 +7,7 @@
   "scripts": {
     "deploy": "yes | gcloud app deploy",
     "dev": "tailwindcss build -i ./src/tailwind.css -o ./public/tailwind.css",
-    "buildjs": "rimraf dist/ && cross-env NODE_ENV=production webpack",
+    "buildjs": "rimraf dist/ && rimraf public/bundle.js && cross-env NODE_ENV=production webpack",
     "build": "npm run buildjs && sh ./build-index.sh && NODE_ENV=production npm run dev",
     "start:dev": "cross-env NODE_ENV=development webpack serve",
     "start": "node src/app.js"

@@ -1,33 +1,9 @@
 const webpack = require("webpack");
 const path = require("path");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
-const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 const devMode = process.env.NODE_ENV !== "production";
 
 const plugins = [
-  new CopyWebpackPlugin({
-    patterns: [
-      {
-        from: path.resolve(__dirname, "public"),
-        to: path.resolve(__dirname, "dist"),
-        toType: "dir",
-        noErrorOnMissing: true,
-        globOptions: {
-          ignore: [path.resolve(__dirname, "./public/index.html")],
-        },
-        info: {
-          minimized: true,
-        },
-      },
-    ],
-  }),
-  new HtmlWebpackPlugin({
-    template: path.resolve(__dirname, "./public/index.html"),
-    hash: true,
-    scriptLoading: "defer",
-    inject: "body",
-  }),
   new webpack.ProvidePlugin({
     Buffer: ["buffer", "Buffer"],
   }),
@@ -47,7 +23,7 @@ module.exports = {
   entry: "./public/web3auth.js",
   target: "web",
   output: {
-    path: path.resolve(__dirname, "./dist"),
+    path: path.resolve(__dirname, "./public"),
     filename: "bundle.js",
     crossOriginLoading: "anonymous",
   },
