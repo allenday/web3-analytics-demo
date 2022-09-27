@@ -1,7 +1,18 @@
+import { initializeApp } from "firebase/app";
+import {
+  GoogleAuthProvider,
+  signInWithRedirect,
+  getRedirectResult,
+  getAuth,
+  signOut,
+} from "firebase/auth";
+
+import { firebaseConfig, clientId } from './config'
+
 const Web3Auth = (()=>{
     let web3AuthInstance = null;
 
-
+    let firebaseApp;
     function getWeb3AuthInstance() {
         if (web3AuthInstance) {
             return web3AuthInstance
@@ -22,11 +33,13 @@ const Web3Auth = (()=>{
         return getWeb3AuthInstance().provider;
     }
 
-    function disconnect() {
+    async function disconnect() {
+        const auth = getAuth(firebaseApp);
+        await signOut(auth)
         return getWeb3AuthInstance().logout();
     }
 
-    async function initWeb3Auth() {       
+    async function initWeb3Auth() {    
         const web3AuthInstance = getWeb3AuthInstance();
         const adapter = new OpenloginAdapter.OpenloginAdapter({
             adapterSettings: {
@@ -56,19 +69,11 @@ const Web3Auth = (()=>{
     }
 
     function loginWithWeb3Auth() {
-        const googleProvider = new firebase.auth.GoogleAuthProvider();
-        // rest of flow will be handled in redirect handler
-        firebase.auth().signInWithRedirect(googleProvider);
-    }
+        const auth = getAuth(firebaseApp);
 
-    async function handleFirebaseRedirect(result) {
-        if(!result.user) throw new Error("Firebase user not found");
-        try {
-            const idToken = await result.user.getIdToken(true)
-            await _login("openlogin", "jwt", idToken);
-        } catch(error) {
-            console.error(error.message);
-        }
+        const googleProvider = new GoogleAuthProvider();
+        // rest of flow will be handled in redirect handler
+        signInWithRedirect(auth, googleProvider);
     }
 
     async function _login(adapter, loginProvider, jwtToken) {
@@ -76,14 +81,48 @@ const Web3Auth = (()=>{
             relogin: true,
             loginProvider,
             extraLoginOptions: {
-            id_token: jwtToken,
-            domain: window.location.origin,
-            verifierIdField: "sub",
+                id_token: jwtToken,
+                domain: window.location.origin,
+                verifierIdField: "sub",
             },
         });
     }
 
+    async function connectWithWeb3Auth() {
+        if(!isConnected()) return loginWithWeb3Auth()
+        const url = new URL(window.location.origin);
+        url.pathname = "index.html";
+        window.location.href = url.href
+        return;
+       
+    }
+    async function firebaseLogin(){
+        try {
+            const auth = getAuth(firebaseApp);
+            console.log("getting redirect result")
+            const result = await getRedirectResult(auth)
+            console.log("redirect", result?.user)
+            if(result?.user) {
+                const idToken = await result.user.getIdToken(true)
+                console.log("idTOken", idToken)
+                await _login("openlogin", "jwt", idToken);
+                return
+            }
+            return connectWithWeb3Auth()
+
+        } catch (error) {
+            console.log("error", error)
+            const url = new URL(window.location.origin);
+            url.pathname = "index.html";
+            url.searchParams.append("error", error.message || "Failed to login");
+            window.location.href = url.href
+        }
+       
+    }
+
   const init = async () => {
+    // Initialize Firebase
+    firebaseApp = initializeApp(firebaseConfig);
     await initWeb3Auth();
   }
   return {
@@ -93,8 +132,9 @@ const Web3Auth = (()=>{
     disconnect,
     provider,
     loginWithWeb3Auth,
-    handleFirebaseRedirect,
+    firebaseLogin,
   }
 })()
+
 
 window.Web3Auth = Web3Auth;

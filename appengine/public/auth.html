@@ -8,41 +8,14 @@
   <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@web3auth/core@0.6.1/dist/core.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@web3auth/openlogin-adapter@0.6.2/dist/openloginAdapter.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.6.8/firebase-app-compat.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.6.8/firebase-auth-compat.min.js"></script>
-  <script src="./config.js"></script>
-  <script src="./web3auth.js"></script>
+  <script src="./bundle.js"></script>
+
 
   <script>
-      async function connectWithWeb3Auth() {
-        const web3Auth = window.Web3Auth;
-        if(!web3Auth.isConnected()) return web3Auth.loginWithWeb3Auth()
-        const url = new URL(window.location.origin);
-        url.pathname = "index.html";
-        window.location.href = url.href
-        return;
-       
-    }
 
     $(document).ready(async function () {
-  
       await window.Web3Auth.init()
-      
-      firebase.auth().getRedirectResult()
-      .then(async (result) => {
-          if(!result.user) {
-            return connectWithWeb3Auth()
-          }
-          await window.Web3Auth.handleFirebaseRedirect(result)
-          return
-        })
-        .catch(error => {
-          const url = new URL(window.location.origin);
-          url.pathname = "index.html";
-          url.searchParams.append("error", error.message || "Failed to login");
-          window.location.href = url.href
-          return;
-        })
+      await window.Web3Auth.firebaseLogin()
     });
 
     
