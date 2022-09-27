@@ -3,10 +3,10 @@
 * Get clientId from the project you created under Plug n Play
 * on Web3Auth Developer Dashboard https://dashboard.web3auth.io/
 */
-const clientId = "BGUj1Ef3IIWmtH7T0axclWLQ4FZWTPkDJALoB_J3-F4szjCApDpBrGdJSk1hTpeZJVoTmRHO-rMjVBr7V9YG_EU";
+export const clientId = "BGUj1Ef3IIWmtH7T0axclWLQ4FZWTPkDJALoB_J3-F4szjCApDpBrGdJSk1hTpeZJVoTmRHO-rMjVBr7V9YG_EU";
 
  // get your firebase config from firebase console
-const firebaseConfig = {
+export const firebaseConfig = {
     apiKey: "AIzaSyBYdB3aRi3hQjQ33Ymu2vx12WRvW-BSWz4",
     authDomain: "web3-analytics-demo.firebaseapp.com",
     projectId: "web3-analytics-demo",
@@ -16,6 +16,3 @@ const firebaseConfig = {
     measurementId: "G-EHJCZHNGP6"
 };
  
-
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);

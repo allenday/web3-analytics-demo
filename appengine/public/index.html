@@ -40,13 +40,13 @@ img[onclick]:active {
 <!-- Google Analytics -->
 <script>
 ga = new Function;
-document.write(`<script async src="https://www.googletagmanager.com/gtag/js?id=___GTAG_ID___"><${''}/script>`); // G-8GRHPC4MFV
+document.write(`<script async src="https://www.googletagmanager.com/gtag/js?id=G-8GRHPC4MFV"><${''}/script>`); // G-8GRHPC4MFV
 window.dataLayer = window.dataLayer || [];
 gtag = function () {
 	dataLayer.push(arguments);
 }
 gtag('js',new Date());
-gtag('config','___GTAG_ID___');
+gtag('config','G-8GRHPC4MFV');
 </script>
 <!-- End Google Analytics -->
 
@@ -57,8 +57,8 @@ dbgwalk = ttl => document.title = ttl;
 
 // Contract Definitions...
 const required_chain = 137;
-const contract_address = '___CONTRACT_ADDRESS___';
-const token_address = '___TOKEN_ADDRESS___';
+const contract_address = '0xd295fa4917Aac94Ee05F22316dF10dC7be20946b';
+const token_address = '0x63EA5b6c26c32fc971140848768615D773ded125';
 const rarible_url_extras = {
 	 137: 'polygon/'
 	,1337: 'polygon/'
@@ -747,7 +747,7 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 				this.el_scores.innerHTML = result.slice(0,10).map(({tokenId,observations,hits},ii) => safehtml`
 					<nobr>${ ii + 1 }. ${ tokenId } (${ hits } wins, ${ observations } matches) <a class="underline" target="rarible" onclick="
 					gtag('event','conversion',{platform:'rarible',tokenId:'${ xssSafeguard(tokenId) }'});
-				" href="${ rarible_url(tokenId) }"><nobr><img width="50px" src="___TOKEN_BUCKET_PREFIX___${ tokenId }.png"></a></nobr>
+				" href="${ rarible_url(tokenId) }"><nobr><img width="50px" src="https://storage.googleapis.com/gpt2punks/${ tokenId }.png"></a></nobr>
 				`).join('<br>');
 				console.log("Top 10 Peek",result.slice(0,10));
 				break;
@@ -777,7 +777,7 @@ customElements.define('voting-choice',class extends HTMLElement {
 				this.innerHTML = safehtml`
 					<div class="p-6 flex flex-col bg-white bg-opacity-50 rounded-xl shadow-lg text-center">
 					<img
-						src="___TOKEN_BUCKET_PREFIX___${ this.tokenId }.png"
+						src="https://storage.googleapis.com/gpt2punks/${ this.tokenId }.png"
 						alt="Token #${this.tokenId}"
 						onclick="this.closest('voting-choice').onChoose()"
 					>

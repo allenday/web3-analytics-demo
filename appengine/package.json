@@ -7,17 +7,49 @@
   "scripts": {
     "deploy": "yes | gcloud app deploy",
     "dev": "tailwindcss build -i ./src/tailwind.css -o ./public/tailwind.css",
-    "build": "sh ./build-index.sh && NODE_ENV=production npm run dev",
+    "buildjs": "rimraf dist/ && cross-env NODE_ENV=production webpack",
+    "build": "npm run buildjs && sh ./build-index.sh && NODE_ENV=production npm run dev",
+    "start:dev": "cross-env NODE_ENV=development webpack serve",
     "start": "node src/app.js"
   },
   "dependencies": {
     "finalhandler": "^1.1.2",
+    "firebase": "^9.10.0",
     "serve-static": "^1.14.2"
   },
   "engines": {
     "node": "16.x.x"
   },
   "devDependencies": {
-    "tailwindcss": "^3.0.24"
+    "@babel/core": "~7.18.5",
+    "@babel/plugin-proposal-class-properties": "^7.17.12",
+    "@babel/plugin-proposal-object-rest-spread": "^7.18.0",
+    "@babel/plugin-transform-runtime": "~7.18.5",
+    "@babel/preset-env": "^7.18.2",
+    "@babel/runtime": "~7.18.3",
+    "babel-loader": "^8.2.5",
+    "copy-webpack-plugin": "^11.0.0",
+    "cross-env": "^7.0.3",
+    "crypto-browserify": "^3.12.0",
+    "css-loader": "^6.7.1",
+    "eslint": "^8.18.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-n": "^15.2.3",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-simple-import-sort": "^7.0.0",
+    "eslint-webpack-plugin": "^3.2.0",
+    "html-webpack-plugin": "^5.5.0",
+    "https-browserify": "^1.0.0",
+    "os-browserify": "^0.3.0",
+    "stream-browserify": "^3.0.0",
+    "stream-http": "^3.2.0",
+    "tailwindcss": "^3.0.24",
+    "process": "^0.11.10",
+    "webpack": "^5.73.0",
+    "webpack-cli": "^4.10.0",
+    "assert": "^2.0.0",
+    "buffer": "^6.0.3",
+    "url": "^0.11.0",
+    "webpack-dev-server": "^4.9.2"
   }
 }
