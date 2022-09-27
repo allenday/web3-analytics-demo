@@ -2,7 +2,7 @@ const http = require('http');
 const fs = require('fs');
 const finalhandler = require('finalhandler');
 const serveStatic = require('serve-static');
-const serve = serveStatic("./dist");
+const serve = serveStatic("./public");
 
 let port = process.env.PORT || 3000
 
