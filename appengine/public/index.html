@@ -34,7 +34,7 @@ img[onclick]:active {
 
 <script src="https://cdn.jsdelivr.net/npm/@web3auth/core@0.6.1/dist/core.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@web3auth/openlogin-adapter@0.6.2/dist/openloginAdapter.umd.min.js"></script>
-<script src="./bundle.js"></script>
+<script src="../dist/bundle.js"></script>
 
 
 <!-- Google Analytics -->
@@ -460,10 +460,10 @@ AppActual = new class { // Note: this is messy; would prefer custom elements, po
 				break;
 			case WEB3_NOT_INSTALLED:
 				this.el_status.innerHTML = safehtml`
-					<div>To vote on-chain:</div>
-					<input type="button" value="Connect with Google&times;Firebase (Web3Auth)" onclick="AppActual.userWeb3AuthConnect()">
-					or
-					<input type="button" value="Install MetaMask" onclick="AppActual.userGetMetaMask()">
+				<div><p>To record your vote on-chain:</p>
+     <input class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="button" value="Connect with Google&times;Firebase (Web3Auth)" onclick="AppActual.userWeb3AuthConnect()">
+     <p>or</p>
+     <input type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" value="Install Metamask" onclick="AppActual.userGetMetaMask()">
 				`;
 				break;
 			case WEB3_STANDBY:
